@@ -5,6 +5,7 @@ import 'screens/places/places_screen.dart';
 import 'screens/history/history_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'widgets/app_buttom_nav.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -33,6 +34,9 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Nudge",
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: Scaffold(
         body: screens[currentIndex],
         bottomNavigationBar: AppBottomNav(
