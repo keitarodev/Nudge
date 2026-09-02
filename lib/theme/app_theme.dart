@@ -9,7 +9,7 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightBackground,
     colorScheme: ColorScheme.light(
       primary: AppColors.lightAccent,
-      surface: AppColors.lightBackground,
+      surface: Colors.white,
       onSurface: AppColors.color1,
     ),
     textTheme: TextTheme(
