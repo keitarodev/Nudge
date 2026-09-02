@@ -16,6 +16,6 @@ class AppColors {
   static const Color color8 = Color(0xFFE9EFFD);
 
   // Background
-  static const Color lightBackground = Color(0xFFFFFFFF);
+  static const Color lightBackground = Color(0xFFE9EFFD);
   static const Color darkBackground = Color(0xFF222222);
 }
