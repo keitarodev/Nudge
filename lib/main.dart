@@ -20,23 +20,30 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   int currentIndex = 0;
-
-  final List<Widget> screens = [
-    const HomeScreen(),
-    const PlacesScreen(),
-    const Center(child: Text("Create Nudge")),
-    const HistoryScreen(),
-    const SettingsScreen(),
-  ];
+  ThemeMode themeMode = ThemeMode.system;
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      const HomeScreen(),
+      const PlacesScreen(),
+      const Center(child: Text("Create Nudge")),
+      const HistoryScreen(),
+      SettingsScreen(
+        themeMode: themeMode,
+        onThemeModeChanged: (mode) {
+          setState(() {
+            themeMode = mode;
+          });
+        },
+      ),
+    ];
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Nudge",
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: themeMode,
       home: Scaffold(
         body: screens[currentIndex],
         bottomNavigationBar: AppBottomNav(
