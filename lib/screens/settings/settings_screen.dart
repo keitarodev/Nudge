@@ -3,9 +3,17 @@ import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import 'appearance_screen.dart';
+import 'categories_screen.dart';
+import 'about_nudge_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  const SettingsScreen({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
@@ -17,7 +25,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Settings", style: AppTextStyles.heading)),
+      appBar: AppBar(
+        titleSpacing: AppSpacing.standard,
+        title: Text("Settings", style: AppTextStyles.heading),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.standard),
         children: [
@@ -30,9 +41,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: AppSpacing.standard),
           Container(
             decoration: BoxDecoration(
-              color: Theme.of(
-                context,
-              ).colorScheme.primary.withValues(alpha: 0.15),
+              color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
                 color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
@@ -51,7 +60,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const AppearanceScreen(),
+                        builder: (context) => AppearanceScreen(
+                          themeMode: widget.themeMode,
+                          onThemeModeChanged: widget.onThemeModeChanged,
+                        ),
                       ),
                     );
                   },
@@ -121,6 +133,74 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       });
                     },
                   ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Text(
+            "Personalization",
+            style: AppTextStyles.sectionHeading.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.category_outlined, size: AppSizes.icon),
+                  title: Text("Categories"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CategoriesScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Text(
+            "About",
+            style: AppTextStyles.sectionHeading.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.info_outline, size: AppSizes.icon),
+                  title: Text("About Nudge"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutNudgeScreen(),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
