@@ -1,13 +1,211 @@
 import 'package:flutter/material.dart';
+import '../../theme/app_sizes.dart';
+import '../../theme/app_spacing.dart';
+import '../../theme/app_text_styles.dart';
+import 'appearance_screen.dart';
+import 'categories_screen.dart';
+import 'about_nudge_screen.dart';
 
-class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+class SettingsScreen extends StatefulWidget {
+  final ThemeMode themeMode;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
+  const SettingsScreen({
+    super.key,
+    required this.themeMode,
+    required this.onThemeModeChanged,
+  });
 
   @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  bool notificationsEnabled = false;
+  bool locationEnabled = false;
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("Settings"),
+    return Scaffold(
+      appBar: AppBar(
+        titleSpacing: AppSpacing.standard,
+        title: Text("Settings", style: AppTextStyles.heading),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(AppSpacing.standard),
+        children: [
+          Text(
+            "Preferences",
+            style: AppTextStyles.sectionHeading.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.brightness_6_outlined,
+                    size: AppSizes.icon,
+                  ),
+                  title: Text("Appearance"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AppearanceScreen(
+                          themeMode: widget.themeMode,
+                          onThemeModeChanged: widget.onThemeModeChanged,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.notifications_outlined,
+                    size: AppSizes.icon,
+                  ),
+                  title: Text("Notifications"),
+                  trailing: Switch(
+                    value: notificationsEnabled,
+                    inactiveThumbColor: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.20),
+                    inactiveTrackColor: Theme.of(context).colorScheme.surface,
+                    trackOutlineColor: WidgetStateProperty.resolveWith((
+                      states,
+                    ) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      return Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.3);
+                    }),
+                    onChanged: (value) {
+                      setState(() {
+                        notificationsEnabled = value;
+                      });
+                    },
+                  ),
+                ),
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.location_on_outlined,
+                    size: AppSizes.icon,
+                  ),
+                  title: Text("Location"),
+                  trailing: Switch(
+                    value: locationEnabled,
+                    inactiveThumbColor: Theme.of(
+                      context,
+                    ).dividerColor.withValues(alpha: 0.20),
+                    inactiveTrackColor: Theme.of(context).colorScheme.surface,
+                    trackOutlineColor: WidgetStateProperty.resolveWith((
+                      states,
+                    ) {
+                      if (states.contains(WidgetState.selected)) {
+                        return Theme.of(context).colorScheme.primary;
+                      }
+                      return Theme.of(
+                        context,
+                      ).dividerColor.withValues(alpha: 0.3);
+                    }),
+                    onChanged: (value) {
+                      setState(() {
+                        locationEnabled = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Text(
+            "Personalization",
+            style: AppTextStyles.sectionHeading.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.category_outlined, size: AppSizes.icon),
+                  title: Text("Categories"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const CategoriesScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Text(
+            "About",
+            style: AppTextStyles.sectionHeading.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.standard),
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: Icon(Icons.info_outline, size: AppSizes.icon),
+                  title: Text("About Nudge"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutNudgeScreen(),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
