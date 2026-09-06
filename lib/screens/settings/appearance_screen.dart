@@ -17,7 +17,8 @@ class AppearanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.standard,
+        toolbarHeight: 96,
+        titleSpacing: AppSpacing.large,
         title: Text("Appearance", style: AppTextStyles.heading),
       ),
       body: ListView(

@@ -10,7 +10,8 @@ class AboutNudgeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.standard,
+        toolbarHeight: 96,
+        titleSpacing: AppSpacing.large,
         title: Text("About Nudge", style: AppTextStyles.heading),
       ),
       body: Padding(

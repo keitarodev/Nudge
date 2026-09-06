@@ -26,7 +26,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.standard,
+        toolbarHeight: 96,
+        titleSpacing: AppSpacing.large,
         title: Text("Settings", style: AppTextStyles.heading),
       ),
       body: ListView(
