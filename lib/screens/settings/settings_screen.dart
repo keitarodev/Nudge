@@ -44,7 +44,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             child: Column(
@@ -150,7 +152,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             child: Column(
@@ -184,7 +188,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
+                    : Theme.of(context).colorScheme.primary,
               ),
             ),
             child: Column(
