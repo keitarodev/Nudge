@@ -123,7 +123,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing: AppSpacing.standard,
+        toolbarHeight: 96,
+        titleSpacing: AppSpacing.large,
         title: Text("Categories", style: AppTextStyles.heading),
       ),
       body: Column(
