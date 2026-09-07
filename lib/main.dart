@@ -6,6 +6,7 @@ import 'screens/history/history_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'widgets/app_buttom_nav.dart';
 import 'theme/app_theme.dart';
+import 'screens/new_nudge/new_nudge_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,7 +28,7 @@ class _MyAppState extends State<MyApp> {
     final List<Widget> screens = [
       const HomeScreen(),
       const PlacesScreen(),
-      const Center(child: Text("Create Nudge")),
+      const NewNudgeScreen(),
       const HistoryScreen(),
       SettingsScreen(
         themeMode: themeMode,
