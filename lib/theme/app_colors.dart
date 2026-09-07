@@ -1,21 +1,42 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Accent colors
-  static const Color lightAccent = Color(0xFF90D5FF);
-  static const Color darkAccent = Color(0xFF3B43A7);
+  // ─────────────────────────────────────────────
+  // Base Palette
+  // ─────────────────────────────────────────────
 
-  // Shared palette
-  static const Color color1 = Color(0xFF09193B);
-  static const Color color2 = Color(0xFF133676);
-  static const Color color3 = Color(0xFF1C4AB0);
-  static const Color color4 = Color(0xFF2563EB);
-  static const Color color5 = Color(0xFF5C8AF0);
-  static const Color color6 = Color(0xFF92B1F5);
-  static const Color color7 = Color(0xFFC8D8FA);
-  static const Color color8 = Color(0xFFE9EFFD);
+  static const Color dark = Color(0xFF0E151A);
+  static const Color darkSecondary = Color(0xFF243540);
+  static const Color blueDark = Color(0xFF486B80);
+  static const Color blue = Color(0xFF73AACC);
+  static const Color accent = Color(0xFF90D5FF);
+  static const Color blueLight = Color(0xFFA6DDFF);
+  static const Color blueVeryLight = Color(0xFFC7EAFF);
+  static const Color lightSurface = Color(0xFFE3F5FF);
+  static const Color light = Color(0xFFF4FBFF);
 
-  // Background
-  static const Color lightBackground = Color(0xFFE9EFFD);
-  static const Color darkBackground = Color(0xFF222222);
+  // ─────────────────────────────────────────────
+  // Light Mode
+  // ─────────────────────────────────────────────
+
+  static const Color lightBackground = light;
+  static const Color lightText = dark;
+  static const Color lightAccent = accent;
+
+  // ─────────────────────────────────────────────
+  // Dark Mode
+  // ─────────────────────────────────────────────
+
+  static const Color darkBackground = dark;
+  static const Color darkText = light;
+  static const Color darkAccent = accent;
+
+  // ─────────────────────────────────────────────
+  // Supporting Colors
+  // ─────────────────────────────────────────────
+
+  static const Color lightSecondary = darkSecondary;
+  static const Color darkSecondaryText = blueLight;
+
+  static const Color border = blueLight;
 }
