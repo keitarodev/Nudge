@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 class HistoryItem {
   final String title;
   final String location;
