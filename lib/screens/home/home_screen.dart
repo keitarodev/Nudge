@@ -48,38 +48,42 @@ class HomeScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
 
+        centerTitle: false,
         titleSpacing: AppSpacing.large,
 
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              _getDate(),
-              style: theme.textTheme.bodySmall,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Image.asset(
+                  'assets/images/nudge_logo-01.png',
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.contain,
+                ),
+
+                const SizedBox(width: AppSpacing.small),
+
+                Text('nudge', style: AppTextStyles.heading),
+              ],
             ),
+
             const SizedBox(height: AppSpacing.small),
-            Text(
-              'Your nudges',
-              style: AppTextStyles.heading,
-            ),
+
+            Text(_getDate(), style: theme.textTheme.bodySmall),
           ],
         ),
 
         actions: [
           Padding(
-            padding: const EdgeInsets.only(
-              right: AppSpacing.large,
-            ),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundColor: theme.colorScheme.primary,
-              child: Text(
-                'K',
-                style: TextStyle(
-                  color: AppColors.dark,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+            padding: const EdgeInsets.only(right: AppSpacing.large),
+            child: IconButton(
+              onPressed: () {
+                // TODO: Open notifications
+              },
+              icon: const Icon(Icons.notifications_none_outlined),
             ),
           ),
         ],
@@ -96,31 +100,23 @@ class HomeScreen extends StatelessWidget {
           AppSpacing.large,
         ),
         children: [
-
           // ─────────────────────────────────────────────
           // Active Nudge Summary
           // ─────────────────────────────────────────────
           Container(
-            padding: const EdgeInsets.all(
-              AppSpacing.large,
-            ),
+            padding: const EdgeInsets.all(AppSpacing.large),
             decoration: BoxDecoration(
               color: theme.colorScheme.primary,
-              borderRadius: BorderRadius.circular(
-                AppSizes.radiusLarge,
-              ),
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '${nudges.length} Active Nudges',
@@ -130,9 +126,7 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.w800,
                           ),
                         ),
-                        const SizedBox(
-                          height: AppSpacing.small,
-                        ),
+                        const SizedBox(height: AppSpacing.small),
                         Text(
                           'Your location reminders are active',
                           style: TextStyle(
@@ -159,48 +153,29 @@ class HomeScreen extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(
-                  height: AppSpacing.large,
-                ),
+                const SizedBox(height: AppSpacing.large),
 
                 Row(
                   children: [
-                    _buildSummaryItem(
-                      context,
-                      Icons.login,
-                      '2 arrive',
-                    ),
-                    const SizedBox(
-                      width: AppSpacing.small,
-                    ),
-                    _buildSummaryItem(
-                      context,
-                      Icons.logout,
-                      '1 leave',
-                    ),
+                    _buildSummaryItem(context, Icons.login, '2 arrive'),
+                    const SizedBox(width: AppSpacing.small),
+                    _buildSummaryItem(context, Icons.logout, '1 leave'),
                   ],
                 ),
               ],
             ),
           ),
 
-          const SizedBox(
-            height: AppSpacing.large,
-          ),
+          const SizedBox(height: AppSpacing.large),
 
           // ─────────────────────────────────────────────
           // Section Header
           // ─────────────────────────────────────────────
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-            crossAxisAlignment:
-                CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'TODAY',
-                style: AppTextStyles.sectionHeading,
-              ),
+              Text('TODAY', style: AppTextStyles.sectionHeading),
 
               TextButton(
                 onPressed: () {
@@ -211,18 +186,13 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(
-            height: AppSpacing.standard,
-          ),
+          const SizedBox(height: AppSpacing.standard),
 
           // ─────────────────────────────────────────────
           // Nudge List
           // ─────────────────────────────────────────────
           for (int i = 0; i < nudges.length; i++)
-            _buildNudgeCard(
-              context,
-              nudges[i],
-            ),
+            _buildNudgeCard(context, nudges[i]),
         ],
       ),
     );
@@ -231,11 +201,7 @@ class HomeScreen extends StatelessWidget {
   // ─────────────────────────────────────────────
   // Summary Item
   // ─────────────────────────────────────────────
-  Widget _buildSummaryItem(
-    BuildContext context,
-    IconData icon,
-    String text,
-  ) {
+  Widget _buildSummaryItem(BuildContext context, IconData icon, String text) {
     final theme = Theme.of(context);
 
     return Container(
@@ -245,20 +211,12 @@ class HomeScreen extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: AppColors.dark.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusMedium,
-        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            size: 16,
-            color: AppColors.dark,
-          ),
-          const SizedBox(
-            width: AppSpacing.small,
-          ),
+          Icon(icon, size: 16, color: AppColors.dark),
+          const SizedBox(width: AppSpacing.small),
           Text(
             text,
             style: TextStyle(
@@ -275,32 +233,20 @@ class HomeScreen extends StatelessWidget {
   // ─────────────────────────────────────────────
   // Nudge Card
   // ─────────────────────────────────────────────
-  Widget _buildNudgeCard(
-    BuildContext context,
-    Map<String, String> nudge,
-  ) {
+  Widget _buildNudgeCard(BuildContext context, Map<String, String> nudge) {
     final theme = Theme.of(context);
 
     return Card(
-      margin: const EdgeInsets.only(
-        bottom: AppSpacing.standard,
-      ),
+      margin: const EdgeInsets.only(bottom: AppSpacing.standard),
       elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusLarge,
-        ),
-        side: BorderSide(
-          color: theme.colorScheme.outline,
-        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+        side: BorderSide(color: theme.colorScheme.outline),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(
-          AppSpacing.standard,
-        ),
+        padding: const EdgeInsets.all(AppSpacing.standard),
         child: Row(
           children: [
-
             // ─────────────────────────────────────────
             // Category Icon
             // ─────────────────────────────────────────
@@ -309,32 +255,24 @@ class HomeScreen extends StatelessWidget {
               height: 48,
               decoration: BoxDecoration(
                 color: theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(
-                  AppSizes.radiusMedium,
-                ),
+                borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
               ),
               child: Icon(
-                _getCategoryIcon(
-                  nudge['category']!,
-                ),
+                _getCategoryIcon(nudge['category']!),
                 color: theme.colorScheme.onPrimaryContainer,
                 size: AppSizes.icon,
               ),
             ),
 
-            const SizedBox(
-              width: AppSpacing.standard,
-            ),
+            const SizedBox(width: AppSpacing.standard),
 
             // ─────────────────────────────────────────
             // Nudge Information
             // ─────────────────────────────────────────
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Text(
                     nudge['title']!,
                     maxLines: 1,
@@ -342,18 +280,11 @@ class HomeScreen extends StatelessWidget {
                     style: AppTextStyles.cardTitle,
                   ),
 
-                  const SizedBox(
-                    height: AppSpacing.small,
-                  ),
+                  const SizedBox(height: AppSpacing.small),
 
-                  Text(
-                    nudge['category']!,
-                    style: theme.textTheme.bodySmall,
-                  ),
+                  Text(nudge['category']!, style: theme.textTheme.bodySmall),
 
-                  const SizedBox(
-                    height: AppSpacing.small,
-                  ),
+                  const SizedBox(height: AppSpacing.small),
 
                   Row(
                     children: [
@@ -362,9 +293,7 @@ class HomeScreen extends StatelessWidget {
                         size: 16,
                         color: theme.colorScheme.secondary,
                       ),
-                      const SizedBox(
-                        width: AppSpacing.small,
-                      ),
+                      const SizedBox(width: AppSpacing.small),
                       Expanded(
                         child: Text(
                           nudge['place']!,
@@ -376,9 +305,7 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
 
-                  const SizedBox(
-                    height: AppSpacing.small,
-                  ),
+                  const SizedBox(height: AppSpacing.small),
 
                   Row(
                     children: [
@@ -387,39 +314,24 @@ class HomeScreen extends StatelessWidget {
                         size: 16,
                         color: theme.colorScheme.secondary,
                       ),
-                      const SizedBox(
-                        width: AppSpacing.small,
-                      ),
-                      Text(
-                        nudge['trigger']!,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      const SizedBox(width: AppSpacing.small),
+                      Text(nudge['trigger']!, style: theme.textTheme.bodySmall),
 
-                      const SizedBox(
-                        width: AppSpacing.standard,
-                      ),
+                      const SizedBox(width: AppSpacing.standard),
 
-                      Text(
-                        nudge['radius']!,
-                        style: theme.textTheme.bodySmall,
-                      ),
+                      Text(nudge['radius']!, style: theme.textTheme.bodySmall),
                     ],
                   ),
                 ],
               ),
             ),
 
-            const SizedBox(
-              width: AppSpacing.small,
-            ),
+            const SizedBox(width: AppSpacing.small),
 
             // ─────────────────────────────────────────
             // Arrow
             // ─────────────────────────────────────────
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.secondary,
-            ),
+            Icon(Icons.chevron_right, color: theme.colorScheme.secondary),
           ],
         ),
       ),
