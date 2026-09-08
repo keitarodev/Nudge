@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'screens/splash/splash_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/places/places_screen.dart';
-import 'screens/history/history_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/new_nudge/new_nudge_screen.dart';
 
@@ -31,9 +29,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const HomeScreen(),
-      const PlacesScreen(),
       const NewNudgeScreen(),
-      const HistoryScreen(),
       SettingsScreen(
         themeMode: themeMode,
         onThemeModeChanged: (mode) {
@@ -46,7 +42,7 @@ class _MyAppState extends State<MyApp> {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: "Nudge",
+      title: 'Nudge',
 
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
