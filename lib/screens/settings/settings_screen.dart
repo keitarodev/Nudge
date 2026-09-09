@@ -5,6 +5,8 @@ import '../../theme/app_text_styles.dart';
 import 'appearance_screen.dart';
 import 'categories_screen.dart';
 import 'about_nudge_screen.dart';
+import '../../theme/app_colors.dart';
+import 'saved_location_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -21,13 +23,11 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   bool notificationsEnabled = false;
-  bool locationEnabled = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 96,
-        titleSpacing: AppSpacing.large,
+        titleSpacing: AppSpacing.standard,
         title: Text("Settings", style: AppTextStyles.heading),
       ),
       body: ListView(
@@ -46,8 +46,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
-                    : Theme.of(context).colorScheme.primary,
+                    ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                    : AppColors.outlineLight,
               ),
             ),
             child: Column(
@@ -73,7 +73,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 Divider(
                   height: 1,
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                      : AppColors.outlineLight,
                 ),
                 ListTile(
                   leading: Icon(
@@ -83,9 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text("Notifications"),
                   trailing: Switch(
                     value: notificationsEnabled,
-                    inactiveThumbColor: Theme.of(
-                      context,
-                    ).dividerColor.withValues(alpha: 0.20),
+                    inactiveThumbColor: AppColors.outlineLight,
                     inactiveTrackColor: Theme.of(context).colorScheme.surface,
                     trackOutlineColor: WidgetStateProperty.resolveWith((
                       states,
@@ -93,46 +93,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       if (states.contains(WidgetState.selected)) {
                         return Theme.of(context).colorScheme.primary;
                       }
-                      return Theme.of(
-                        context,
-                      ).dividerColor.withValues(alpha: 0.3);
+                      return Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.outlineDark.withAlpha((255 * 0.2).round())
+                          : AppColors.outlineLight;
                     }),
                     onChanged: (value) {
                       setState(() {
                         notificationsEnabled = value;
-                      });
-                    },
-                  ),
-                ),
-                Divider(
-                  height: 1,
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
-                ),
-                ListTile(
-                  leading: Icon(
-                    Icons.location_on_outlined,
-                    size: AppSizes.icon,
-                  ),
-                  title: Text("Location"),
-                  trailing: Switch(
-                    value: locationEnabled,
-                    inactiveThumbColor: Theme.of(
-                      context,
-                    ).dividerColor.withValues(alpha: 0.20),
-                    inactiveTrackColor: Theme.of(context).colorScheme.surface,
-                    trackOutlineColor: WidgetStateProperty.resolveWith((
-                      states,
-                    ) {
-                      if (states.contains(WidgetState.selected)) {
-                        return Theme.of(context).colorScheme.primary;
-                      }
-                      return Theme.of(
-                        context,
-                      ).dividerColor.withValues(alpha: 0.3);
-                    }),
-                    onChanged: (value) {
-                      setState(() {
-                        locationEnabled = value;
                       });
                     },
                   ),
@@ -154,8 +121,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
-                    : Theme.of(context).colorScheme.primary,
+                    ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                    : AppColors.outlineLight,
               ),
             ),
             child: Column(
@@ -169,6 +136,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const CategoriesScreen(),
+                      ),
+                    );
+                  },
+                ),
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                      : AppColors.outlineLight,
+                ),
+
+                ListTile(
+                  leading: Icon(
+                    Icons.location_on_outlined,
+                    size: AppSizes.icon,
+                  ),
+                  title: Text("Saved Location"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SavedLocationScreen(),
                       ),
                     );
                   },
@@ -190,8 +180,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
                 color: Theme.of(context).brightness == Brightness.dark
-                    ? Theme.of(context).dividerColor.withValues(alpha: 0.1)
-                    : Theme.of(context).colorScheme.primary,
+                    ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                    : AppColors.outlineLight,
               ),
             ),
             child: Column(

@@ -39,4 +39,8 @@ class AppColors {
   static const Color darkSecondaryText = blueLight;
 
   static const Color border = blueLight;
+
+  // Outline Colors
+  static const Color outlineLight = Color(0xFFE0E0E0);
+  static const Color outlineDark = Color(0xFFB8C4CA);
 }
