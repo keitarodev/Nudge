@@ -4,6 +4,7 @@ import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
+import 'map_test_screen.dart';
 
 class SavedLocationScreen extends StatefulWidget {
   const SavedLocationScreen({super.key});
@@ -217,7 +218,12 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addLocation,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MapTestScreen()),
+          );
+        },
         child: const Icon(Icons.add_location_alt_outlined),
       ),
     );
