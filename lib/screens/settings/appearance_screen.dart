@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
+import '../../theme/app_colors.dart';
 
 class AppearanceScreen extends StatelessWidget {
   final ThemeMode themeMode;
@@ -17,8 +18,7 @@ class AppearanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 96,
-        titleSpacing: AppSpacing.large,
+        titleSpacing: AppSpacing.standard,
         title: Text("Appearance", style: AppTextStyles.heading),
       ),
       body: ListView(
@@ -29,7 +29,9 @@ class AppearanceScreen extends StatelessWidget {
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
               border: Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                    : AppColors.outlineLight,
               ),
             ),
             child: RadioGroup<ThemeMode>(
@@ -45,9 +47,9 @@ class AppearanceScreen extends StatelessWidget {
                   ),
                   Divider(
                     height: 1,
-                    color: Theme.of(
-                      context,
-                    ).dividerColor.withValues(alpha: 0.1),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                        : AppColors.outlineLight,
                   ),
                   const RadioListTile<ThemeMode>(
                     title: Text("Light"),
@@ -55,9 +57,9 @@ class AppearanceScreen extends StatelessWidget {
                   ),
                   Divider(
                     height: 1,
-                    color: Theme.of(
-                      context,
-                    ).dividerColor.withValues(alpha: 0.1),
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                        : AppColors.outlineLight,
                   ),
                   const RadioListTile<ThemeMode>(
                     title: Text("Dark"),

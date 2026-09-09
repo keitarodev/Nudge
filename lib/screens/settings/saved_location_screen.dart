@@ -1,42 +1,41 @@
 import 'package:flutter/material.dart';
+
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
 
-class CategoriesScreen extends StatefulWidget {
-  const CategoriesScreen({super.key});
+class SavedLocationScreen extends StatefulWidget {
+  const SavedLocationScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
+  State<SavedLocationScreen> createState() => _SavedLocationScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  List<String> categories = [
-    "Study",
-    "Work",
-    "Personal",
-    "Food",
-    "Shopping",
-    "Health",
+class _SavedLocationScreenState extends State<SavedLocationScreen> {
+  List<String> savedLocations = ["Home", "University"];
+
+  List<String> locationDetails = [
+    "123 Street, Phnom Penh",
+    "Limkokwing University",
   ];
 
-  void addCategory() {
-    showCategoryDialog();
+  void addLocation() {
+    showLocationDialog();
   }
 
-  void editCategory(int index) {
-    showCategoryDialog(index: index);
+  void editLocation(int index) {
+    showLocationDialog(index: index);
   }
 
-  void deleteCategory(int index) {
+  void deleteLocation(int index) {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Delete Category?"),
+          title: const Text("Delete Location?"),
           content: Text(
-            'Are you sure you want to delete "${categories[index]}"?',
+            'Are you sure you want to delete "${savedLocations[index]}"?',
           ),
           actions: [
             TextButton(
@@ -48,8 +47,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  categories.removeAt(index);
+                  savedLocations.removeAt(index);
+                  locationDetails.removeAt(index);
                 });
+
                 Navigator.pop(context);
               },
               child: const Text("Delete"),
@@ -60,9 +61,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
-  void showCategoryDialog({int? index}) {
-    final controller = TextEditingController(
-      text: index == null ? "" : categories[index],
+  void showLocationDialog({int? index}) {
+    final nameController = TextEditingController(
+      text: index == null ? "" : savedLocations[index],
+    );
+
+    final addressController = TextEditingController(
+      text: index == null ? "" : locationDetails[index],
     );
 
     showDialog(
@@ -73,17 +78,32 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
           ),
           title: Text(
-            index == null ? "Add Category" : "Edit Category",
+            index == null ? "Add Location" : "Edit Location",
             style: AppTextStyles.cardTitle,
           ),
-          content: TextField(
-            controller: controller,
-            decoration: InputDecoration(
-              hintText: "Category name",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(
+                  hintText: "Location name",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(height: AppSpacing.standard),
+              TextField(
+                controller: addressController,
+                decoration: InputDecoration(
+                  hintText: "Address",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: [
             TextButton(
@@ -94,14 +114,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             ),
             TextButton(
               onPressed: () {
-                if (controller.text.trim().isEmpty) {
+                final name = nameController.text.trim();
+                final address = addressController.text.trim();
+
+                if (name.isEmpty || address.isEmpty) {
                   return;
                 }
+
                 setState(() {
                   if (index == null) {
-                    categories.add(controller.text.trim());
+                    savedLocations.add(name);
+                    locationDetails.add(address);
                   } else {
-                    categories[index] = controller.text.trim();
+                    savedLocations[index] = name;
+                    locationDetails[index] = address;
                   }
                 });
 
@@ -125,7 +151,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: AppSpacing.standard,
-        title: Text("Categories", style: AppTextStyles.heading),
+        title: Text("Saved Location", style: AppTextStyles.heading),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -137,25 +163,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               AppSpacing.standard,
               0,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Your Categories", style: AppTextStyles.sectionHeading),
-                const SizedBox(height: AppSpacing.small),
-                Text(
-                  "Manage the categories you use to organize your Nudges.",
-                  style: AppTextStyles.body.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+            child: Text("Your Locations", style: AppTextStyles.sectionHeading),
           ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.standard),
-              itemCount: categories.length,
+              itemCount: savedLocations.length,
               itemBuilder: (context, index) {
+                final location = savedLocations[index];
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: AppSpacing.small),
                   decoration: BoxDecoration(
@@ -168,20 +184,27 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ),
                   ),
                   child: ListTile(
-                    title: Text(categories[index]),
+                    leading: Icon(
+                      location == "Home"
+                          ? Icons.home_outlined
+                          : Icons.location_on_outlined,
+                      size: AppSizes.icon,
+                    ),
+                    title: Text(location),
+                    subtitle: Text(locationDetails[index]),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
                           icon: const Icon(Icons.edit_outlined),
                           onPressed: () {
-                            editCategory(index);
+                            editLocation(index);
                           },
                         ),
                         IconButton(
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () {
-                            deleteCategory(index);
+                            deleteLocation(index);
                           },
                         ),
                       ],
@@ -194,8 +217,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: addCategory,
-        child: const Icon(Icons.add),
+        onPressed: addLocation,
+        child: const Icon(Icons.add_location_alt_outlined),
       ),
     );
   }
