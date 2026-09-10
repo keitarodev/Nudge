@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'screens/splash/splash_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -23,6 +24,38 @@ class _MyAppState extends State<MyApp> {
   int currentIndex = 0;
   ThemeMode themeMode = ThemeMode.system;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadThemeMode();
+  }
+
+  Future<void> _loadThemeMode() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final savedTheme = prefs.getString('themeMode');
+
+    if (savedTheme == null) {
+      return;
+    }
+
+    setState(() {
+      if (savedTheme == 'light') {
+        themeMode = ThemeMode.light;
+      } else if (savedTheme == 'dark') {
+        themeMode = ThemeMode.dark;
+      } else {
+        themeMode = ThemeMode.system;
+      }
+    });
+  }
+
+  Future<void> _saveThemeMode(ThemeMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString('themeMode', mode.name);
+  }
+
   bool showSplash = true;
 
   @override
@@ -36,6 +69,8 @@ class _MyAppState extends State<MyApp> {
           setState(() {
             themeMode = mode;
           });
+
+          _saveThemeMode(mode);
         },
       ),
     ];

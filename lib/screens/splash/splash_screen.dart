@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
+import '../../theme/app_colors.dart';
 
 class SplashScreen extends StatefulWidget {
   final VoidCallback onFinished;
@@ -34,11 +35,13 @@ class _SplashScreenState extends State<SplashScreen> {
             // ─────────────────────────────────────────────
             // Nudge Logo
             // ─────────────────────────────────────────────
-            Image.asset(
-              'assets/images/nudge_logo-02.png',
-              width: 300,
-              height: 100,
-              fit: BoxFit.contain,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.lightBackground,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Image.asset('assets/images/nudge_logo-02.png', width: 150),
             ),
 
             // ─────────────────────────────────────────────
