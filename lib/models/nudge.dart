@@ -5,10 +5,8 @@ extension NudgeTriggerLabel on NudgeTrigger {
     switch (this) {
       case NudgeTrigger.arrive:
         return 'When I arrive';
-
       case NudgeTrigger.leave:
         return 'When I leave';
-
       case NudgeTrigger.nearby:
         return 'When I’m nearby';
     }
@@ -16,17 +14,25 @@ extension NudgeTriggerLabel on NudgeTrigger {
 }
 
 class Nudge {
+  final String id;
   final String title;
-  final String category;
+  final String categoryId;
+  final String placeId;
   final NudgeTrigger trigger;
-  final String placeName;
-  final double radiusMeters;
+  final int radius;
+  final String status;
+  final DateTime createdAt;
+  final DateTime? lastTriggeredAt;
 
   const Nudge({
+    required this.id,
     required this.title,
-    required this.category,
+    required this.categoryId,
+    required this.placeId,
     required this.trigger,
-    required this.placeName,
-    required this.radiusMeters,
+    required this.radius,
+    required this.status,
+    required this.createdAt,
+    this.lastTriggeredAt,
   });
 }

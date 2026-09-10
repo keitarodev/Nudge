@@ -49,7 +49,7 @@ class NudgeSavedScreen extends StatelessWidget {
             Text(
               '"${nudge.title}" is ready to remind you '
               '${nudge.trigger.label.toLowerCase()} at '
-              '${nudge.placeName}.',
+              '${nudge.placeId}.',
               textAlign: TextAlign.center,
               style: textTheme.bodyLarge?.copyWith(
                 color: colorScheme.onSurfaceVariant,

@@ -58,11 +58,15 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
 
   Nudge _createNudge() {
     return Nudge(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title.trim(),
-      category: selectedCategory!,
+      categoryId: selectedCategory!,
+      placeId: placeName.trim(),
       trigger: selectedTrigger,
-      placeName: placeName.trim(),
-      radiusMeters: selectedRadius,
+      radius: selectedRadius.toInt(),
+      status: 'active',
+      createdAt: DateTime.now(),
+      lastTriggeredAt: null,
     );
   }
 
