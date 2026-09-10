@@ -1,8 +1,5 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
-import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 
@@ -48,12 +45,13 @@ class _SplashScreenState extends State<SplashScreen> {
             // App Name
             // ─────────────────────────────────────────────
             // Text('Nudge', style: AppTextStyles.heading),
-
             const SizedBox(height: AppSpacing.small),
 
             Text(
               'Remember when it matters.',
-              style: theme.textTheme.bodyMedium,
+              style: AppTextStyles.cardTitle.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
             ),
           ],
         ),
