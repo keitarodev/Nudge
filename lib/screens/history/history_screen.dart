@@ -4,6 +4,7 @@ import '../../models/nudge.dart';
 import '../../models/nudge_category.dart';
 import '../../models/nudge_history.dart';
 import '../../models/place.dart';
+import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
@@ -353,8 +354,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     ColorScheme colors = theme.colorScheme;
 
-    TextTheme text = theme.textTheme;
-
     List<NudgeHistory> filteredHistory = _getFilteredHistory();
 
     Map<String, List<NudgeHistory>> groupedHistory = _groupHistory(
@@ -364,175 +363,130 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
 
+      appBar: AppBar(
+        titleSpacing: AppSpacing.standard,
+
+        title: Text('History', style: AppTextStyles.heading),
+
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back_rounded),
+        ),
+
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              setState(() {
+                _selectedFilter = value;
+              });
+            },
+
+            icon: const Icon(Icons.tune_rounded),
+
+            tooltip: 'Filter history',
+
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+            ),
+
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  value: 'All',
+                  child: Row(
+                    children: [
+                      if (_selectedFilter == 'All')
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
+
+                      if (_selectedFilter != 'All') const SizedBox(width: 18),
+
+                      const SizedBox(width: AppSpacing.small),
+
+                      Text('All', style: AppTextStyles.body),
+                    ],
+                  ),
+                ),
+
+                PopupMenuItem(
+                  value: 'Today',
+                  child: Row(
+                    children: [
+                      if (_selectedFilter == 'Today')
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
+
+                      if (_selectedFilter != 'Today') const SizedBox(width: 18),
+
+                      const SizedBox(width: AppSpacing.small),
+
+                      Text('Today', style: AppTextStyles.body),
+                    ],
+                  ),
+                ),
+
+                PopupMenuItem(
+                  value: 'This Week',
+                  child: Row(
+                    children: [
+                      if (_selectedFilter == 'This Week')
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
+
+                      if (_selectedFilter != 'This Week')
+                        const SizedBox(width: 18),
+
+                      const SizedBox(width: AppSpacing.small),
+
+                      Text('This Week', style: AppTextStyles.body),
+                    ],
+                  ),
+                ),
+
+                PopupMenuItem(
+                  value: 'This Month',
+                  child: Row(
+                    children: [
+                      if (_selectedFilter == 'This Month')
+                        Icon(
+                          Icons.check_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
+
+                      if (_selectedFilter != 'This Month')
+                        const SizedBox(width: 18),
+
+                      const SizedBox(width: AppSpacing.small),
+
+                      Text('This Month', style: AppTextStyles.body),
+                    ],
+                  ),
+                ),
+              ];
+            },
+          ),
+
+          const SizedBox(width: AppSpacing.small),
+        ],
+      ),
+
       body: SafeArea(
         child: Column(
           children: [
-            // ─────────────────────────────────────
-            // Header
-            // ─────────────────────────────────────
+            const SizedBox(height: AppSpacing.normal),
 
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.large,
-                AppSpacing.normal,
-                AppSpacing.large,
-                0,
-              ),
-
-              child: Row(
-                children: [
-                  // Back Button
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-
-                    padding: EdgeInsets.zero,
-
-                    constraints: const BoxConstraints(
-                      minWidth: 42,
-                      minHeight: 42,
-                    ),
-
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: 28,
-                      color: colors.onSurface,
-                    ),
-                  ),
-
-                  const SizedBox(width: AppSpacing.normal),
-
-                  // History
-                  Expanded(
-                    child: Text(
-                      'History',
-
-                      style: text.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-
-                  // Filter Button
-                  PopupMenuButton<String>(
-                    onSelected: (value) {
-                      setState(() {
-                        _selectedFilter = value;
-                      });
-                    },
-
-                    icon: Icon(
-                      Icons.tune_rounded,
-                      size: 27,
-                      color: colors.onSurface,
-                    ),
-
-                    tooltip: 'Filter history',
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppSizes.radiusMedium,
-                      ),
-                    ),
-
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          value: 'All',
-                          child: Row(
-                            children: [
-                              if (_selectedFilter == 'All')
-                                Icon(
-                                  Icons.check_rounded,
-                                  size: 18,
-                                  color: colors.primary,
-                                ),
-
-                              if (_selectedFilter != 'All')
-                                const SizedBox(width: 18),
-
-                              const SizedBox(width: AppSpacing.small),
-
-                              Text('All', style: AppTextStyles.body),
-                            ],
-                          ),
-                        ),
-
-                        PopupMenuItem(
-                          value: 'Today',
-                          child: Row(
-                            children: [
-                              if (_selectedFilter == 'Today')
-                                Icon(
-                                  Icons.check_rounded,
-                                  size: 18,
-                                  color: colors.primary,
-                                ),
-
-                              if (_selectedFilter != 'Today')
-                                const SizedBox(width: 18),
-
-                              const SizedBox(width: AppSpacing.small),
-
-                              Text('Today', style: AppTextStyles.body),
-                            ],
-                          ),
-                        ),
-
-                        PopupMenuItem(
-                          value: 'This Week',
-                          child: Row(
-                            children: [
-                              if (_selectedFilter == 'This Week')
-                                Icon(
-                                  Icons.check_rounded,
-                                  size: 18,
-                                  color: colors.primary,
-                                ),
-
-                              if (_selectedFilter != 'This Week')
-                                const SizedBox(width: 18),
-
-                              const SizedBox(width: AppSpacing.small),
-
-                              Text('This Week', style: AppTextStyles.body),
-                            ],
-                          ),
-                        ),
-
-                        PopupMenuItem(
-                          value: 'This Month',
-                          child: Row(
-                            children: [
-                              if (_selectedFilter == 'This Month')
-                                Icon(
-                                  Icons.check_rounded,
-                                  size: 18,
-                                  color: colors.primary,
-                                ),
-
-                              if (_selectedFilter != 'This Month')
-                                const SizedBox(width: 18),
-
-                              const SizedBox(width: AppSpacing.small),
-
-                              Text('This Month', style: AppTextStyles.body),
-                            ],
-                          ),
-                        ),
-                      ];
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.large),
-
-            // ─────────────────────────────────────
-            // Current Filter
-            // ─────────────────────────────────────
             if (_selectedFilter != 'All')
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -569,7 +523,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         Text(
                           _selectedFilter,
 
-                          style: text.bodySmall?.copyWith(
+                          style: AppTextStyles.smallText.copyWith(
                             color: colors.onPrimaryContainer,
                             fontWeight: FontWeight.w700,
                           ),
@@ -581,11 +535,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
 
             if (_selectedFilter != 'All')
-              const SizedBox(height: AppSpacing.large),
+              const SizedBox(height: AppSpacing.normal),
 
-            // ─────────────────────────────────────
-            // History List
-            // ─────────────────────────────────────
             Expanded(
               child: filteredHistory.isEmpty
                   ? _buildEmptyState(context)
@@ -599,7 +550,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                       children: [
                         for (var group in groupedHistory.entries) ...[
-                          // Date
                           _buildSectionHeader(
                             context,
                             group.key,
@@ -608,7 +558,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                           const SizedBox(height: AppSpacing.normal),
 
-                          // Items
                           for (NudgeHistory item in group.value)
                             _buildHistoryCard(context, item),
 
@@ -636,9 +585,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           child: Text(
             label,
 
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: 1.2,
+            style: AppTextStyles.sectionHeading.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
@@ -647,9 +594,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Text(
           '$count ${count == 1 ? 'event' : 'events'}',
 
-          style: theme.textTheme.bodySmall?.copyWith(
+          style: AppTextStyles.smallText.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w700,
           ),
         ),
       ],
@@ -665,8 +612,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     ColorScheme colors = theme.colorScheme;
 
-    TextTheme text = theme.textTheme;
-
     return Container(
       margin: const EdgeInsets.only(bottom: AppSpacing.small),
 
@@ -678,9 +623,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       decoration: BoxDecoration(
         color: colors.surface,
 
-        borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
+        borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
 
-        border: Border.all(color: colors.outline),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+              : AppColors.outlineLight,
+        ),
       ),
 
       child: Row(
@@ -717,7 +666,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
-                  style: text.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
+                  style: AppTextStyles.cardTitle,
                 ),
 
                 const SizedBox(height: AppSpacing.micro),
@@ -729,8 +678,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-
-                  style: text.bodySmall?.copyWith(
+                  style: AppTextStyles.smallText.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
@@ -744,8 +692,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           Text(
             _getTime(item.triggeredAt),
 
-            style: text.bodySmall?.copyWith(
-              fontWeight: FontWeight.w700,
+            style: AppTextStyles.smallText.copyWith(
               color: colors.onSurfaceVariant,
             ),
           ),
