@@ -38,16 +38,13 @@ class AppBottomNav extends StatelessWidget {
 
                   // Only show an outline in dark mode.
                   border: isDarkMode
-                      ? Border.all(
-                          color: theme.colorScheme.outline,
-                          width: 1,
-                        )
+                      ? Border.all(color: theme.colorScheme.outline, width: 1)
                       : null,
 
                   boxShadow: [
                     BoxShadow(
-                      color: theme.shadowColor.withOpacity(
-                        isDarkMode ? 0.30 : 0.15,
+                      color: theme.shadowColor.withValues(
+                        alpha: isDarkMode ? 0.30 : 0.15,
                       ),
                       blurRadius: isDarkMode ? 20 : 24,
                       offset: const Offset(0, 8),
@@ -73,9 +70,7 @@ class AppBottomNav extends StatelessWidget {
                     ),
 
                     // Space for floating +
-                    const Expanded(
-                      child: SizedBox(),
-                    ),
+                    const Expanded(child: SizedBox()),
 
                     // Settings
                     Expanded(
@@ -109,9 +104,7 @@ class AppBottomNav extends StatelessWidget {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: currentIndex == 1
-                          ? primaryColor
-                          : surfaceColor,
+                      color: currentIndex == 1 ? primaryColor : surfaceColor,
                       shape: BoxShape.circle,
 
                       // Border for both modes
@@ -124,8 +117,8 @@ class AppBottomNav extends StatelessWidget {
 
                       boxShadow: [
                         BoxShadow(
-                          color: primaryColor.withOpacity(
-                            currentIndex == 1 ? 0.35 : 0.12,
+                          color: primaryColor.withValues(
+                            alpha: currentIndex == 1 ? 0.35 : 0.12,
                           ),
                           blurRadius: 14,
                           offset: const Offset(0, 6),
@@ -169,9 +162,7 @@ class _NavItem extends StatelessWidget {
       child: Icon(
         icon,
         size: 28,
-        color: isSelected
-            ? selectedColor
-            : unselectedColor,
+        color: isSelected ? selectedColor : unselectedColor,
       ),
     );
   }
