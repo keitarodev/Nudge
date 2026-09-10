@@ -152,7 +152,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     Icons.location_on_outlined,
                     size: AppSizes.icon,
                   ),
-                  title: Text("Saved Location"),
+                  title: Text("Saved Places"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 12),
                   onTap: () {
                     Navigator.push(

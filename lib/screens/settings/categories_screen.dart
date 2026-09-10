@@ -3,6 +3,7 @@ import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
+import '../../models/nudge_category.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -12,13 +13,13 @@ class CategoriesScreen extends StatefulWidget {
 }
 
 class _CategoriesScreenState extends State<CategoriesScreen> {
-  List<String> categories = [
-    "Study",
-    "Work",
-    "Personal",
-    "Food",
-    "Shopping",
-    "Health",
+  List<NudgeCategory> categories = [
+    NudgeCategory(id: "study_01", name: "Study"),
+    NudgeCategory(id: "work_01", name: "Work"),
+    NudgeCategory(id: "personal_01", name: "Personal"),
+    NudgeCategory(id: "food_01", name: "Food"),
+    NudgeCategory(id: "shopping_01", name: "Shopping"),
+    NudgeCategory(id: "health_01", name: "Health"),
   ];
 
   void addCategory() {
@@ -62,7 +63,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void showCategoryDialog({int? index}) {
     final controller = TextEditingController(
-      text: index == null ? "" : categories[index],
+      text: index == null ? "" : categories[index].name,
     );
 
     showDialog(
@@ -99,9 +100,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 }
                 setState(() {
                   if (index == null) {
-                    categories.add(controller.text.trim());
+                    categories.add(
+                      NudgeCategory(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: controller.text.trim(),
+                      ),
+                    );
                   } else {
-                    categories[index] = controller.text.trim();
+                    categories[index] = NudgeCategory(
+                      id: categories[index].id,
+                      name: controller.text.trim(),
+                    );
                   }
                 });
 
@@ -168,7 +177,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     ),
                   ),
                   child: ListTile(
-                    title: Text(categories[index]),
+                    title: Text(categories[index].name),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

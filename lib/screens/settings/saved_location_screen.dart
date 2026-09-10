@@ -4,6 +4,7 @@ import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
+import '../../models/place.dart';
 
 class SavedLocationScreen extends StatefulWidget {
   const SavedLocationScreen({super.key});
@@ -13,13 +14,14 @@ class SavedLocationScreen extends StatefulWidget {
 }
 
 class _SavedLocationScreenState extends State<SavedLocationScreen> {
-  List<String> savedLocations = ["Home", "University"];
-
-  List<String> locationDetails = [
-    "123 Street, Phnom Penh",
-    "Limkokwing University",
+  List<SavedPlace> savedPlaces = [
+    SavedPlace(id: "home_01", name: "Home", address: "123 Street, Phnom Penh"),
+    SavedPlace(
+      id: "university_01",
+      name: "University",
+      address: "Limkokwing University",
+    ),
   ];
-
   void addLocation() {
     showLocationDialog();
   }
@@ -33,9 +35,9 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Delete Location?"),
+          title: const Text("Delete Place?"),
           content: Text(
-            'Are you sure you want to delete "${savedLocations[index]}"?',
+            'Are you sure you want to delete "${savedPlaces[index].name}"?',
           ),
           actions: [
             TextButton(
@@ -47,8 +49,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  savedLocations.removeAt(index);
-                  locationDetails.removeAt(index);
+                  savedPlaces.removeAt(index);
                 });
 
                 Navigator.pop(context);
@@ -63,11 +64,11 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
 
   void showLocationDialog({int? index}) {
     final nameController = TextEditingController(
-      text: index == null ? "" : savedLocations[index],
+      text: index == null ? "" : savedPlaces[index].name,
     );
 
     final addressController = TextEditingController(
-      text: index == null ? "" : locationDetails[index],
+      text: index == null ? "" : savedPlaces[index].address,
     );
 
     showDialog(
@@ -78,7 +79,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
             borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
           ),
           title: Text(
-            index == null ? "Add Location" : "Edit Location",
+            index == null ? "Add Place" : "Edit Place",
             style: AppTextStyles.cardTitle,
           ),
           content: Column(
@@ -87,7 +88,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
               TextField(
                 controller: nameController,
                 decoration: InputDecoration(
-                  hintText: "Location name",
+                  hintText: "Place name",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
                   ),
@@ -123,11 +124,19 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
 
                 setState(() {
                   if (index == null) {
-                    savedLocations.add(name);
-                    locationDetails.add(address);
+                    savedPlaces.add(
+                      SavedPlace(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        name: name,
+                        address: address,
+                      ),
+                    );
                   } else {
-                    savedLocations[index] = name;
-                    locationDetails[index] = address;
+                    savedPlaces[index] = SavedPlace(
+                      id: savedPlaces[index].id,
+                      name: name,
+                      address: address,
+                    );
                   }
                 });
 
@@ -151,7 +160,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: AppSpacing.standard,
-        title: Text("Saved Location", style: AppTextStyles.heading),
+        title: Text("Saved Places", style: AppTextStyles.heading),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,14 +172,14 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
               AppSpacing.standard,
               0,
             ),
-            child: Text("Your Locations", style: AppTextStyles.sectionHeading),
+            child: Text("Your Places", style: AppTextStyles.sectionHeading),
           ),
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(AppSpacing.standard),
-              itemCount: savedLocations.length,
+              itemCount: savedPlaces.length,
               itemBuilder: (context, index) {
-                final location = savedLocations[index];
+                final place = savedPlaces[index];
 
                 return Container(
                   margin: const EdgeInsets.only(bottom: AppSpacing.small),
@@ -185,13 +194,13 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
                   ),
                   child: ListTile(
                     leading: Icon(
-                      location == "Home"
+                      place.name == "Home"
                           ? Icons.home_outlined
                           : Icons.location_on_outlined,
                       size: AppSizes.icon,
                     ),
-                    title: Text(location),
-                    subtitle: Text(locationDetails[index]),
+                    title: Text(place.name),
+                    subtitle: Text(place.address),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
