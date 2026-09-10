@@ -59,7 +59,7 @@ class ReviewNudgeScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.category_outlined,
                   label: 'Category',
-                  value: nudge.category,
+                  value: nudge.categoryId,
                 ),
                 const Divider(height: AppSpacing.extraLarge),
 
@@ -75,7 +75,7 @@ class ReviewNudgeScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.location_on_outlined,
                   label: 'Place',
-                  value: nudge.placeName,
+                  value: nudge.placeId,
                 ),
                 const Divider(height: AppSpacing.extraLarge),
 
@@ -83,7 +83,7 @@ class ReviewNudgeScreen extends StatelessWidget {
                   context: context,
                   icon: Icons.radar_rounded,
                   label: 'Radius',
-                  value: _radiusLabel(nudge.radiusMeters),
+                  value: _radiusLabel(nudge.radius.toDouble()),
                 ),
               ],
             ),

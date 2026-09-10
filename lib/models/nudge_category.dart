@@ -1,11 +1,9 @@
-class SavedPlace {
+class NudgeCategory {
   final String id;
   final String name;
-  final String address;
 
-  const SavedPlace({
+  const NudgeCategory({
     required this.id,
     required this.name,
-    required this.address,
   });
 }
