@@ -38,7 +38,10 @@ class AppBottomNav extends StatelessWidget {
 
                   // Only show an outline in dark mode.
                   border: isDarkMode
-                      ? Border.all(color: theme.colorScheme.outline, width: 1)
+                      ? Border.all(
+                          color: theme.colorScheme.outline,
+                          width: 1,
+                        )
                       : null,
 
                   boxShadow: [
@@ -62,7 +65,6 @@ class AppBottomNav extends StatelessWidget {
                           icon: currentIndex == 0
                               ? Icons.home
                               : Icons.home_outlined,
-                          label: 'Home',
                           isSelected: currentIndex == 0,
                           selectedColor: primaryColor,
                           unselectedColor: unselectedColor,
@@ -71,7 +73,9 @@ class AppBottomNav extends StatelessWidget {
                     ),
 
                     // Space for floating +
-                    const Expanded(child: SizedBox()),
+                    const Expanded(
+                      child: SizedBox(),
+                    ),
 
                     // Settings
                     Expanded(
@@ -82,7 +86,6 @@ class AppBottomNav extends StatelessWidget {
                           icon: currentIndex == 2
                               ? Icons.settings
                               : Icons.settings_outlined,
-                          label: 'Settings',
                           isSelected: currentIndex == 2,
                           selectedColor: primaryColor,
                           unselectedColor: unselectedColor,
@@ -95,7 +98,6 @@ class AppBottomNav extends StatelessWidget {
             ),
 
             // Floating + button
-            // Floating + button
             Positioned(
               top: 0,
               left: 0,
@@ -107,7 +109,9 @@ class AppBottomNav extends StatelessWidget {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: currentIndex == 1 ? primaryColor : surfaceColor,
+                      color: currentIndex == 1
+                          ? primaryColor
+                          : surfaceColor,
                       shape: BoxShape.circle,
 
                       // Border for both modes
@@ -148,14 +152,12 @@ class AppBottomNav extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   final IconData icon;
-  final String label;
   final bool isSelected;
   final Color selectedColor;
   final Color unselectedColor;
 
   const _NavItem({
     required this.icon,
-    required this.label,
     required this.isSelected,
     required this.selectedColor,
     required this.unselectedColor,
@@ -163,24 +165,14 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(
-          icon,
-          size: 25,
-          color: isSelected ? selectedColor : unselectedColor,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-            color: isSelected ? selectedColor : unselectedColor,
-          ),
-        ),
-      ],
+    return Center(
+      child: Icon(
+        icon,
+        size: 28,
+        color: isSelected
+            ? selectedColor
+            : unselectedColor,
+      ),
     );
   }
 }
