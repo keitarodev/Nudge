@@ -165,7 +165,7 @@ class HomeScreen extends StatelessWidget {
                         Text(
                           'Your location reminders are active',
                           style: TextStyle(
-                            color: AppColors.dark.withOpacity(0.7),
+                            color: AppColors.dark.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
@@ -179,7 +179,7 @@ class HomeScreen extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: AppColors.dark.withOpacity(0.12),
+                          color: AppColors.dark.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -278,7 +278,7 @@ class HomeScreen extends StatelessWidget {
         vertical: AppSpacing.small,
       ),
       decoration: BoxDecoration(
-        color: AppColors.dark.withOpacity(0.12),
+        color: AppColors.dark.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(
           AppSizes.radiusMedium,
         ),
