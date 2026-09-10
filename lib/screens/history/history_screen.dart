@@ -13,10 +13,11 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  bool _showTriggeredOnly = true;
 
-  // Temporary test data.
-  // Replace this with repository/database data later.
+  // Current selected filter
+  String _selectedFilter = 'All';
+
+  // Temporary test data
   final List<HistoryItem> _history = [
     HistoryItem(
       title: 'Buy chicken',
@@ -74,7 +75,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     ),
   ];
 
-  static const List<String> _monthNames = [
+  // Month names
+  final List<String> _months = [
     'Jan',
     'Feb',
     'Mar',
@@ -89,7 +91,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
     'Dec',
   ];
 
-  DateTime _dateOnly(DateTime date) {
+  // ─────────────────────────────────────────────
+  // Get Date Without Time
+  // ─────────────────────────────────────────────
+
+  DateTime _getDateOnly(DateTime date) {
     return DateTime(
       date.year,
       date.month,
@@ -97,61 +103,129 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  String _sectionLabel(
-    DateTime date,
-    DateTime today,
-    DateTime yesterday,
-  ) {
-    final day = _dateOnly(date);
+  // ─────────────────────────────────────────────
+  // Get Date Section
+  // ─────────────────────────────────────────────
 
-    if (day == today) {
+  String _getDateLabel(DateTime date) {
+    DateTime today = _getDateOnly(DateTime.now());
+
+    DateTime yesterday = today.subtract(
+      const Duration(days: 1),
+    );
+
+    DateTime itemDate = _getDateOnly(date);
+
+    if (itemDate == today) {
       return 'TODAY';
     }
 
-    if (day == yesterday) {
+    if (itemDate == yesterday) {
       return 'YESTERDAY';
     }
 
-    return '${_monthNames[day.month - 1]} ${day.day}, ${day.year}';
+    return '${_months[itemDate.month - 1]} '
+        '${itemDate.day}, '
+        '${itemDate.year}';
   }
 
-  String _formatTime(DateTime date) {
-    final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
-    final minute = date.minute.toString().padLeft(2, '0');
-    final period = date.hour >= 12 ? 'PM' : 'AM';
+  // ─────────────────────────────────────────────
+  // Format Time
+  // ─────────────────────────────────────────────
+
+  String _getTime(DateTime date) {
+    int hour = date.hour;
+
+    String period = 'AM';
+
+    if (hour >= 12) {
+      period = 'PM';
+    }
+
+    if (hour > 12) {
+      hour = hour - 12;
+    }
+
+    if (hour == 0) {
+      hour = 12;
+    }
+
+    String minute = date.minute.toString().padLeft(2, '0');
 
     return '$hour:$minute $period';
   }
 
+  // ─────────────────────────────────────────────
+  // Filter History
+  // ─────────────────────────────────────────────
+
+  List<HistoryItem> _getFilteredHistory() {
+    DateTime today = _getDateOnly(DateTime.now());
+
+    if (_selectedFilter == 'All') {
+      return _history;
+    }
+
+    if (_selectedFilter == 'Today') {
+      return _history.where((item) {
+        return _getDateOnly(item.date) == today;
+      }).toList();
+    }
+
+    if (_selectedFilter == 'This Week') {
+      DateTime weekStart = today.subtract(
+        Duration(days: today.weekday - 1),
+      );
+
+      return _history.where((item) {
+        DateTime itemDate = _getDateOnly(item.date);
+
+        return itemDate.isAfter(
+              weekStart.subtract(
+                const Duration(days: 1),
+              ),
+            ) &&
+            itemDate.isBefore(
+              today.add(
+                const Duration(days: 1),
+              ),
+            );
+      }).toList();
+    }
+
+    if (_selectedFilter == 'This Month') {
+      return _history.where((item) {
+        return item.date.year == today.year &&
+            item.date.month == today.month;
+      }).toList();
+    }
+
+    return _history;
+  }
+
+  // ─────────────────────────────────────────────
+  // Group History
+  // ─────────────────────────────────────────────
+
   Map<String, List<HistoryItem>> _groupHistory(
     List<HistoryItem> items,
   ) {
-    final now = DateTime.now();
+    // Sort newest first
+    List<HistoryItem> sortedHistory =
+        List.from(items);
 
-    final today = _dateOnly(now);
-
-    final yesterday = today.subtract(
-      const Duration(days: 1),
+    sortedHistory.sort(
+      (a, b) => b.date.compareTo(a.date),
     );
 
-    final sortedItems = List<HistoryItem>.from(items)
-      ..sort(
-        (a, b) => b.date.compareTo(a.date),
-      );
+    Map<String, List<HistoryItem>> grouped = {};
 
-    final Map<String, List<HistoryItem>> grouped = {};
+    for (HistoryItem item in sortedHistory) {
+      String label = _getDateLabel(item.date);
 
-    for (final item in sortedItems) {
-      final label = _sectionLabel(
-        item.date,
-        today,
-        yesterday,
-      );
-
-      grouped.putIfAbsent(
-        label,
-        () => [],
-      );
+      if (!grouped.containsKey(label)) {
+        grouped[label] = [];
+      }
 
       grouped[label]!.add(item);
     }
@@ -159,108 +233,484 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return grouped;
   }
 
+  // ─────────────────────────────────────────────
+  // Build
+  // ─────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    ThemeData theme = Theme.of(context);
 
-    final groupedHistory = _groupHistory(_history);
+    ColorScheme colors = theme.colorScheme;
+
+    TextTheme text = theme.textTheme;
+
+    List<HistoryItem> filteredHistory =
+        _getFilteredHistory();
+
+    Map<String, List<HistoryItem>> groupedHistory =
+        _groupHistory(filteredHistory);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor:
+          theme.scaffoldBackgroundColor,
 
-      appBar: AppBar(
-        backgroundColor: theme.scaffoldBackgroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        automaticallyImplyLeading: false,
+      body: SafeArea(
+        child: Column(
+          children: [
 
-        titleSpacing: AppSpacing.large,
+            // ─────────────────────────────────────
+            // Header
+            // ─────────────────────────────────────
 
-        title: Text(
-          'History',
-          style: textTheme.headlineLarge,
-        ),
-      ),
-
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.large,
-          AppSpacing.normal,
-          AppSpacing.large,
-          32,
-        ),
-
-        children: [
-          // ─────────────────────────────────────────────
-          // History Filter
-          // ─────────────────────────────────────────────
-
-          _buildHistoryFilter(context),
-
-          const SizedBox(
-            height: AppSpacing.large,
-          ),
-
-          // ─────────────────────────────────────────────
-          // History Groups
-          // ─────────────────────────────────────────────
-
-          for (final entry in groupedHistory.entries) ...[
-            _buildSectionHeader(
-              context,
-              entry.key,
-              entry.value.length,
-            ),
-
-            const SizedBox(
-              height: AppSpacing.standard,
-            ),
-
-            for (final item in entry.value)
-              _buildHistoryCard(
-                context,
-                item,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.large,
+                AppSpacing.normal,
+                AppSpacing.large,
+                0,
               ),
 
+              child: Row(
+                children: [
+
+                  // Back Button
+                  IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+
+                    padding: EdgeInsets.zero,
+
+                    constraints: const BoxConstraints(
+                      minWidth: 42,
+                      minHeight: 42,
+                    ),
+
+                    icon: Icon(
+                      Icons.arrow_back_rounded,
+                      size: 28,
+                      color: colors.onSurface,
+                    ),
+                  ),
+
+                  const SizedBox(
+                    width: AppSpacing.normal,
+                  ),
+
+                  // History
+                  Expanded(
+                    child: Text(
+                      'History',
+
+                      style: text.headlineLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+
+                  // Filter Button
+                  PopupMenuButton<String>(
+                    onSelected: (value) {
+                      setState(() {
+                        _selectedFilter = value;
+                      });
+                    },
+
+                    icon: Icon(
+                      Icons.tune_rounded,
+                      size: 27,
+                      color: colors.onSurface,
+                    ),
+
+                    tooltip: 'Filter history',
+
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        AppSizes.radiusMedium,
+                      ),
+                    ),
+
+                    itemBuilder: (context) {
+                      return [
+                        PopupMenuItem(
+                          value: 'All',
+                          child: Row(
+                            children: [
+                              if (_selectedFilter == 'All')
+                                Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: colors.primary,
+                                ),
+
+                              if (_selectedFilter != 'All')
+                                const SizedBox(width: 18),
+
+                              const SizedBox(
+                                width: AppSpacing.small,
+                              ),
+
+                              Text(
+                                'All',
+                                style:
+                                    AppTextStyles.body,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        PopupMenuItem(
+                          value: 'Today',
+                          child: Row(
+                            children: [
+                              if (_selectedFilter == 'Today')
+                                Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: colors.primary,
+                                ),
+
+                              if (_selectedFilter != 'Today')
+                                const SizedBox(width: 18),
+
+                              const SizedBox(
+                                width: AppSpacing.small,
+                              ),
+
+                              Text(
+                                'Today',
+                                style:
+                                    AppTextStyles.body,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        PopupMenuItem(
+                          value: 'This Week',
+                          child: Row(
+                            children: [
+                              if (_selectedFilter ==
+                                  'This Week')
+                                Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: colors.primary,
+                                ),
+
+                              if (_selectedFilter !=
+                                  'This Week')
+                                const SizedBox(width: 18),
+
+                              const SizedBox(
+                                width: AppSpacing.small,
+                              ),
+
+                              Text(
+                                'This Week',
+                                style:
+                                    AppTextStyles.body,
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        PopupMenuItem(
+                          value: 'This Month',
+                          child: Row(
+                            children: [
+                              if (_selectedFilter ==
+                                  'This Month')
+                                Icon(
+                                  Icons.check_rounded,
+                                  size: 18,
+                                  color: colors.primary,
+                                ),
+
+                              if (_selectedFilter !=
+                                  'This Month')
+                                const SizedBox(width: 18),
+
+                              const SizedBox(
+                                width: AppSpacing.small,
+                              ),
+
+                              Text(
+                                'This Month',
+                                style:
+                                    AppTextStyles.body,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ];
+                    },
+                  ),
+                ],
+              ),
+            ),
+
             const SizedBox(
-              height: AppSpacing.normal,
+              height: AppSpacing.large,
+            ),
+
+            // ─────────────────────────────────────
+            // Current Filter
+            // ─────────────────────────────────────
+
+            if (_selectedFilter != 'All')
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.large,
+                ),
+
+                child: Align(
+                  alignment: Alignment.centerLeft,
+
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.normal,
+                      vertical: AppSpacing.small,
+                    ),
+
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
+
+                      borderRadius:
+                          BorderRadius.circular(
+                        AppSizes.radiusSmall,
+                      ),
+                    ),
+
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+
+                      children: [
+                        Icon(
+                          Icons.filter_alt_outlined,
+                          size: 16,
+                          color:
+                              colors.onPrimaryContainer,
+                        ),
+
+                        const SizedBox(
+                          width: AppSpacing.small,
+                        ),
+
+                        Text(
+                          _selectedFilter,
+
+                          style:
+                              text.bodySmall?.copyWith(
+                            color:
+                                colors.onPrimaryContainer,
+                            fontWeight:
+                                FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            if (_selectedFilter != 'All')
+              const SizedBox(
+                height: AppSpacing.large,
+              ),
+
+            // ─────────────────────────────────────
+            // History List
+            // ─────────────────────────────────────
+
+            Expanded(
+              child: filteredHistory.isEmpty
+                  ? _buildEmptyState(context)
+                  : ListView(
+                      padding:
+                          const EdgeInsets.fromLTRB(
+                        AppSpacing.large,
+                        0,
+                        AppSpacing.large,
+                        AppSpacing.extraLarge,
+                      ),
+
+                      children: [
+
+                        for (var group
+                            in groupedHistory.entries) ...[
+
+                          // Date
+                          _buildSectionHeader(
+                            context,
+                            group.key,
+                            group.value.length,
+                          ),
+
+                          const SizedBox(
+                            height: AppSpacing.normal,
+                          ),
+
+                          // Items
+                          for (HistoryItem item
+                              in group.value)
+                            _buildHistoryCard(
+                              context,
+                              item,
+                            ),
+
+                          const SizedBox(
+                            height: AppSpacing.small,
+                          ),
+                        ],
+                      ],
+                    ),
             ),
           ],
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildHistoryFilter(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
+  // ─────────────────────────────────────────────
+  // Section Header
+  // ─────────────────────────────────────────────
+
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String label,
+    int count,
+  ) {
+    ThemeData theme = Theme.of(context);
+
+    return Row(
+      children: [
+
+        Expanded(
+          child: Text(
+            label,
+
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.2,
+              color:
+                  theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+
+        Text(
+          '$count ${count == 1 ? 'event' : 'events'}',
+
+          style:
+              theme.textTheme.bodySmall?.copyWith(
+            color:
+                theme.colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // ─────────────────────────────────────────────
+  // History Card
+  // ─────────────────────────────────────────────
+
+  Widget _buildHistoryCard(
+    BuildContext context,
+    HistoryItem item,
+  ) {
+    ThemeData theme = Theme.of(context);
+
+    ColorScheme colors = theme.colorScheme;
+
+    TextTheme text = theme.textTheme;
 
     return Container(
-      padding: const EdgeInsets.all(
-        AppSpacing.small,
+      margin: const EdgeInsets.only(
+        bottom: AppSpacing.small,
+      ),
+
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.normal,
+        vertical: AppSpacing.normal,
       ),
 
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
+        color: colors.surface,
+
         borderRadius: BorderRadius.circular(
           AppSizes.radiusMedium,
+        ),
+
+        border: Border.all(
+          color: colors.outline,
         ),
       ),
 
       child: Row(
         children: [
+
+          // Check Icon
+          Container(
+            width: 40,
+            height: 40,
+
+            decoration: BoxDecoration(
+              color: colors.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+
+            child: Icon(
+              Icons.check_rounded,
+              size: 20,
+              color: colors.onPrimaryContainer,
+            ),
+          ),
+
+          const SizedBox(
+            width: AppSpacing.normal,
+          ),
+
+          // Information
           Expanded(
-            child: _FilterButton(
-              label: 'Triggered',
-              selected: _showTriggeredOnly,
-              onTap: () {
-                setState(() {
-                  _showTriggeredOnly = true;
-                });
-              },
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+
+              children: [
+
+                // Title
+                Text(
+                  item.title,
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: text.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+
+                const SizedBox(
+                  height: AppSpacing.micro,
+                ),
+
+                // Location + Category
+                Text(
+                  '${item.location} · ${item.category}',
+
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+
+                  style: text.bodySmall?.copyWith(
+                    color:
+                        colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -268,15 +718,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
             width: AppSpacing.small,
           ),
 
-          Expanded(
-            child: _FilterButton(
-              label: 'All',
-              selected: !_showTriggeredOnly,
-              onTap: () {
-                setState(() {
-                  _showTriggeredOnly = false;
-                });
-              },
+          // Time
+          Text(
+            _getTime(item.date),
+
+            style: text.bodySmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color:
+                  colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -284,163 +733,52 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String label,
-    int itemCount,
-  ) {
-    final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+  // ─────────────────────────────────────────────
+  // Empty State
+  // ─────────────────────────────────────────────
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: textTheme.labelLarge?.copyWith(
-              letterSpacing: 1.2,
+  Widget _buildEmptyState(
+    BuildContext context,
+  ) {
+    ThemeData theme = Theme.of(context);
+
+    return Center(
+      child: Column(
+        mainAxisAlignment:
+            MainAxisAlignment.center,
+
+        children: [
+
+          Icon(
+            Icons.history_rounded,
+            size: 48,
+            color: theme.colorScheme.primary,
+          ),
+
+          const SizedBox(
+            height: AppSpacing.normal,
+          ),
+
+          Text(
+            'No history found',
+
+            style:
+                theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
-        ),
-
-        Text(
-          '$itemCount ${itemCount == 1 ? 'event' : 'events'}',
-          style: textTheme.bodySmall,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHistoryCard(
-    BuildContext context,
-    HistoryItem item,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
-    return Container(
-      margin: const EdgeInsets.only(
-        bottom: AppSpacing.standard,
-      ),
-
-      padding: const EdgeInsets.all(
-        AppSpacing.standard,
-      ),
-
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusLarge,
-        ),
-
-        border: Border.all(
-          color: colorScheme.outline,
-        ),
-      ),
-
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // ─────────────────────────────────────────────
-          // Completed Icon
-          // ─────────────────────────────────────────────
-
-          Container(
-            width: 48,
-            height: 48,
-
-            decoration: BoxDecoration(
-              color: colorScheme.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-
-            child: Icon(
-              Icons.check_rounded,
-              size: AppSizes.icon,
-              color: colorScheme.onPrimaryContainer,
-            ),
-          ),
 
           const SizedBox(
-            width: AppSpacing.standard,
+            height: AppSpacing.small,
           ),
-
-          // ─────────────────────────────────────────────
-          // History Information
-          // ─────────────────────────────────────────────
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: AppSpacing.small,
-                ),
-
-                Text(
-                  item.category,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: textTheme.bodySmall?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-
-                const SizedBox(
-                  height: AppSpacing.small,
-                ),
-
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-
-                    const SizedBox(
-                      width: AppSpacing.small,
-                    ),
-
-                    Expanded(
-                      child: Text(
-                        item.location,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodySmall,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(
-            width: AppSpacing.standard,
-          ),
-
-          // ─────────────────────────────────────────────
-          // Time
-          // ─────────────────────────────────────────────
 
           Text(
-            _formatTime(item.date),
-            style: textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
+            'There are no events for this filter.',
+
+            style:
+                theme.textTheme.bodyMedium?.copyWith(
+              color:
+                  theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
@@ -448,72 +786,3 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 }
-
-// ─────────────────────────────────────────────────────────
-// Filter Button
-// ─────────────────────────────────────────────────────────
-
-class _FilterButton extends StatelessWidget {
-  const _FilterButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
-    return Material(
-      color: selected
-          ? colorScheme.surface
-          : Colors.transparent,
-
-      borderRadius: BorderRadius.circular(
-        AppSizes.radiusSmall,
-      ),
-
-      child: InkWell(
-        onTap: onTap,
-
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusSmall,
-        ),
-
-        child: Container(
-          height: 40,
-
-          alignment: Alignment.center,
-
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-              AppSizes.radiusSmall,
-            ),
-
-            border: selected
-                ? Border.all(
-                    color: colorScheme.outline,
-                  )
-                : null,
-          ),
-
-          child: Text(
-            label,
-            style: textTheme.bodyMedium?.copyWith(
-              fontWeight: selected
-                  ? FontWeight.w800
-                  : FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
