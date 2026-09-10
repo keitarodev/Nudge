@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../models/history_item.dart';
+import '../../models/nudge.dart';
+import '../../models/nudge_category.dart';
+import '../../models/nudge_history.dart';
+import '../../models/place.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
@@ -13,65 +16,185 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-
   // Current selected filter
   String _selectedFilter = 'All';
 
-  // Temporary test data
-  final List<HistoryItem> _history = [
-    HistoryItem(
+  // Temporary V1 test data
+  final List<NudgeCategory> _categories = [
+    NudgeCategory(id: 'food_01', name: 'Food'),
+    NudgeCategory(id: 'shopping_01', name: 'Shopping'),
+    NudgeCategory(id: 'study_01', name: 'Study'),
+    NudgeCategory(id: 'health_01', name: 'Health'),
+    NudgeCategory(id: 'personal_01', name: 'Personal'),
+    NudgeCategory(id: 'work_01', name: 'Work'),
+  ];
+
+  final List<SavedPlace> _places = [
+    SavedPlace(id: 'market_01', name: 'Market', address: 'Market'),
+    SavedPlace(
+      id: 'supermarket_01',
+      name: 'Supermarket',
+      address: 'Supermarket',
+    ),
+    SavedPlace(
+      id: 'university_01',
+      name: 'University',
+      address: 'Limkokwing University',
+    ),
+    SavedPlace(id: 'fitzone_01', name: 'FitZone', address: 'FitZone'),
+    SavedPlace(id: 'brown_01', name: 'Brown Coffee', address: 'Brown Coffee'),
+    SavedPlace(id: 'home_01', name: 'Home', address: '123 Street, Phnom Penh'),
+    SavedPlace(id: 'office_01', name: 'Office', address: 'Office'),
+    SavedPlace(id: 'mall_01', name: 'Mall', address: 'Mall'),
+  ];
+
+  final List<Nudge> _nudges = [
+    Nudge(
+      id: 'nudge_01',
       title: 'Buy chicken',
-      location: 'Market',
-      category: 'Food',
-      date: DateTime(2026, 9, 6, 12, 42),
+      categoryId: 'food_01',
+      placeId: 'market_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 9, 1),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_02',
       title: 'Buy shampoo',
-      location: 'Supermarket',
-      category: 'Shopping',
-      date: DateTime(2026, 9, 6, 10, 15),
+      categoryId: 'shopping_01',
+      placeId: 'supermarket_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 9, 1),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_03',
       title: 'Submit document',
-      location: 'University',
-      category: 'Study',
-      date: DateTime(2026, 9, 5, 16, 20),
+      categoryId: 'study_01',
+      placeId: 'university_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 9, 1),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_04',
       title: 'Gym session',
-      location: 'FitZone',
-      category: 'Health',
-      date: DateTime(2026, 8, 30, 7, 30),
+      categoryId: 'health_01',
+      placeId: 'fitzone_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 25),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_05',
       title: 'Coffee with Dara',
-      location: 'Brown Coffee',
-      category: 'Personal',
-      date: DateTime(2026, 8, 28, 11, 30),
+      categoryId: 'personal_01',
+      placeId: 'brown_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 25),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_06',
       title: 'Finish assignment',
-      location: 'Home',
-      category: 'Study',
-      date: DateTime(2026, 8, 20, 20, 15),
+      categoryId: 'study_01',
+      placeId: 'home_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 15),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_07',
       title: 'Go to work',
-      location: 'Office',
-      category: 'Work',
-      date: DateTime(2026, 8, 18, 8, 10),
+      categoryId: 'work_01',
+      placeId: 'office_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 15),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_08',
       title: 'Buy new shirt',
-      location: 'Mall',
-      category: 'Shopping',
-      date: DateTime(2026, 8, 8, 15, 20),
+      categoryId: 'shopping_01',
+      placeId: 'mall_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 1),
     ),
-    HistoryItem(
+    Nudge(
+      id: 'nudge_09',
       title: 'Call Mom',
-      location: 'Home',
-      category: 'Personal',
-      date: DateTime(2026, 8, 5, 19, 0),
+      categoryId: 'personal_01',
+      placeId: 'home_01',
+      trigger: NudgeTrigger.arrive,
+      radius: 100,
+      status: 'completed',
+      createdAt: DateTime(2026, 8, 1),
+    ),
+  ];
+
+  final List<NudgeHistory> _history = [
+    NudgeHistory(
+      id: 'history_01',
+      nudgeId: 'nudge_01',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 9, 6, 12, 42),
+    ),
+    NudgeHistory(
+      id: 'history_02',
+      nudgeId: 'nudge_02',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 9, 6, 10, 15),
+    ),
+    NudgeHistory(
+      id: 'history_03',
+      nudgeId: 'nudge_03',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 9, 5, 16, 20),
+    ),
+    NudgeHistory(
+      id: 'history_04',
+      nudgeId: 'nudge_04',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 30, 7, 30),
+    ),
+    NudgeHistory(
+      id: 'history_05',
+      nudgeId: 'nudge_05',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 28, 11, 30),
+    ),
+    NudgeHistory(
+      id: 'history_06',
+      nudgeId: 'nudge_06',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 20, 20, 15),
+    ),
+    NudgeHistory(
+      id: 'history_07',
+      nudgeId: 'nudge_07',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 18, 8, 10),
+    ),
+    NudgeHistory(
+      id: 'history_08',
+      nudgeId: 'nudge_08',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 8, 15, 20),
+    ),
+    NudgeHistory(
+      id: 'history_09',
+      nudgeId: 'nudge_09',
+      status: 'triggered',
+      triggeredAt: DateTime(2026, 8, 5, 19, 0),
     ),
   ];
 
@@ -91,28 +214,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
     'Dec',
   ];
 
-  // ─────────────────────────────────────────────
-  // Get Date Without Time
-  // ─────────────────────────────────────────────
-
   DateTime _getDateOnly(DateTime date) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-    );
+    return DateTime(date.year, date.month, date.day);
   }
-
-  // ─────────────────────────────────────────────
-  // Get Date Section
-  // ─────────────────────────────────────────────
 
   String _getDateLabel(DateTime date) {
     DateTime today = _getDateOnly(DateTime.now());
 
-    DateTime yesterday = today.subtract(
-      const Duration(days: 1),
-    );
+    DateTime yesterday = today.subtract(const Duration(days: 1));
 
     DateTime itemDate = _getDateOnly(date);
 
@@ -128,10 +237,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
         '${itemDate.day}, '
         '${itemDate.year}';
   }
-
-  // ─────────────────────────────────────────────
-  // Format Time
-  // ─────────────────────────────────────────────
 
   String _getTime(DateTime date) {
     int hour = date.hour;
@@ -155,11 +260,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return '$hour:$minute $period';
   }
 
-  // ─────────────────────────────────────────────
-  // Filter History
-  // ─────────────────────────────────────────────
+  Nudge? _getNudge(String nudgeId) {
+    for (Nudge nudge in _nudges) {
+      if (nudge.id == nudgeId) {
+        return nudge;
+      }
+    }
 
-  List<HistoryItem> _getFilteredHistory() {
+    return null;
+  }
+
+  String _getCategoryName(String categoryId) {
+    for (NudgeCategory category in _categories) {
+      if (category.id == categoryId) {
+        return category.name;
+      }
+    }
+
+    return '';
+  }
+
+  String _getPlaceName(String placeId) {
+    for (SavedPlace place in _places) {
+      if (place.id == placeId) {
+        return place.name;
+      }
+    }
+
+    return '';
+  }
+
+  List<NudgeHistory> _getFilteredHistory() {
     DateTime today = _getDateOnly(DateTime.now());
 
     if (_selectedFilter == 'All') {
@@ -168,60 +299,40 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     if (_selectedFilter == 'Today') {
       return _history.where((item) {
-        return _getDateOnly(item.date) == today;
+        return _getDateOnly(item.triggeredAt) == today;
       }).toList();
     }
 
     if (_selectedFilter == 'This Week') {
-      DateTime weekStart = today.subtract(
-        Duration(days: today.weekday - 1),
-      );
+      DateTime weekStart = today.subtract(Duration(days: today.weekday - 1));
 
       return _history.where((item) {
-        DateTime itemDate = _getDateOnly(item.date);
+        DateTime itemDate = _getDateOnly(item.triggeredAt);
 
-        return itemDate.isAfter(
-              weekStart.subtract(
-                const Duration(days: 1),
-              ),
-            ) &&
-            itemDate.isBefore(
-              today.add(
-                const Duration(days: 1),
-              ),
-            );
+        return itemDate.isAfter(weekStart.subtract(const Duration(days: 1))) &&
+            itemDate.isBefore(today.add(const Duration(days: 1)));
       }).toList();
     }
 
     if (_selectedFilter == 'This Month') {
       return _history.where((item) {
-        return item.date.year == today.year &&
-            item.date.month == today.month;
+        return item.triggeredAt.year == today.year &&
+            item.triggeredAt.month == today.month;
       }).toList();
     }
 
     return _history;
   }
 
-  // ─────────────────────────────────────────────
-  // Group History
-  // ─────────────────────────────────────────────
+  Map<String, List<NudgeHistory>> _groupHistory(List<NudgeHistory> items) {
+    List<NudgeHistory> sortedHistory = List.from(items);
 
-  Map<String, List<HistoryItem>> _groupHistory(
-    List<HistoryItem> items,
-  ) {
-    // Sort newest first
-    List<HistoryItem> sortedHistory =
-        List.from(items);
+    sortedHistory.sort((a, b) => b.triggeredAt.compareTo(a.triggeredAt));
 
-    sortedHistory.sort(
-      (a, b) => b.date.compareTo(a.date),
-    );
+    Map<String, List<NudgeHistory>> grouped = {};
 
-    Map<String, List<HistoryItem>> grouped = {};
-
-    for (HistoryItem item in sortedHistory) {
-      String label = _getDateLabel(item.date);
+    for (NudgeHistory item in sortedHistory) {
+      String label = _getDateLabel(item.triggeredAt);
 
       if (!grouped.containsKey(label)) {
         grouped[label] = [];
@@ -232,7 +343,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return grouped;
   }
-
   // ─────────────────────────────────────────────
   // Build
   // ─────────────────────────────────────────────
@@ -245,20 +355,18 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     TextTheme text = theme.textTheme;
 
-    List<HistoryItem> filteredHistory =
-        _getFilteredHistory();
+    List<NudgeHistory> filteredHistory = _getFilteredHistory();
 
-    Map<String, List<HistoryItem>> groupedHistory =
-        _groupHistory(filteredHistory);
+    Map<String, List<NudgeHistory>> groupedHistory = _groupHistory(
+      filteredHistory,
+    );
 
     return Scaffold(
-      backgroundColor:
-          theme.scaffoldBackgroundColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
 
       body: SafeArea(
         child: Column(
           children: [
-
             // ─────────────────────────────────────
             // Header
             // ─────────────────────────────────────
@@ -273,7 +381,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
               child: Row(
                 children: [
-
                   // Back Button
                   IconButton(
                     onPressed: () {
@@ -294,9 +401,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ),
 
-                  const SizedBox(
-                    width: AppSpacing.normal,
-                  ),
+                  const SizedBox(width: AppSpacing.normal),
 
                   // History
                   Expanded(
@@ -347,15 +452,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               if (_selectedFilter != 'All')
                                 const SizedBox(width: 18),
 
-                              const SizedBox(
-                                width: AppSpacing.small,
-                              ),
+                              const SizedBox(width: AppSpacing.small),
 
-                              Text(
-                                'All',
-                                style:
-                                    AppTextStyles.body,
-                              ),
+                              Text('All', style: AppTextStyles.body),
                             ],
                           ),
                         ),
@@ -374,15 +473,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               if (_selectedFilter != 'Today')
                                 const SizedBox(width: 18),
 
-                              const SizedBox(
-                                width: AppSpacing.small,
-                              ),
+                              const SizedBox(width: AppSpacing.small),
 
-                              Text(
-                                'Today',
-                                style:
-                                    AppTextStyles.body,
-                              ),
+                              Text('Today', style: AppTextStyles.body),
                             ],
                           ),
                         ),
@@ -391,27 +484,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           value: 'This Week',
                           child: Row(
                             children: [
-                              if (_selectedFilter ==
-                                  'This Week')
+                              if (_selectedFilter == 'This Week')
                                 Icon(
                                   Icons.check_rounded,
                                   size: 18,
                                   color: colors.primary,
                                 ),
 
-                              if (_selectedFilter !=
-                                  'This Week')
+                              if (_selectedFilter != 'This Week')
                                 const SizedBox(width: 18),
 
-                              const SizedBox(
-                                width: AppSpacing.small,
-                              ),
+                              const SizedBox(width: AppSpacing.small),
 
-                              Text(
-                                'This Week',
-                                style:
-                                    AppTextStyles.body,
-                              ),
+                              Text('This Week', style: AppTextStyles.body),
                             ],
                           ),
                         ),
@@ -420,27 +505,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           value: 'This Month',
                           child: Row(
                             children: [
-                              if (_selectedFilter ==
-                                  'This Month')
+                              if (_selectedFilter == 'This Month')
                                 Icon(
                                   Icons.check_rounded,
                                   size: 18,
                                   color: colors.primary,
                                 ),
 
-                              if (_selectedFilter !=
-                                  'This Month')
+                              if (_selectedFilter != 'This Month')
                                 const SizedBox(width: 18),
 
-                              const SizedBox(
-                                width: AppSpacing.small,
-                              ),
+                              const SizedBox(width: AppSpacing.small),
 
-                              Text(
-                                'This Month',
-                                style:
-                                    AppTextStyles.body,
-                              ),
+                              Text('This Month', style: AppTextStyles.body),
                             ],
                           ),
                         ),
@@ -451,14 +528,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
             ),
 
-            const SizedBox(
-              height: AppSpacing.large,
-            ),
+            const SizedBox(height: AppSpacing.large),
 
             // ─────────────────────────────────────
             // Current Filter
             // ─────────────────────────────────────
-
             if (_selectedFilter != 'All')
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -477,10 +551,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     decoration: BoxDecoration(
                       color: colors.primaryContainer,
 
-                      borderRadius:
-                          BorderRadius.circular(
-                        AppSizes.radiusSmall,
-                      ),
+                      borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
                     ),
 
                     child: Row(
@@ -490,23 +561,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         Icon(
                           Icons.filter_alt_outlined,
                           size: 16,
-                          color:
-                              colors.onPrimaryContainer,
+                          color: colors.onPrimaryContainer,
                         ),
 
-                        const SizedBox(
-                          width: AppSpacing.small,
-                        ),
+                        const SizedBox(width: AppSpacing.small),
 
                         Text(
                           _selectedFilter,
 
-                          style:
-                              text.bodySmall?.copyWith(
-                            color:
-                                colors.onPrimaryContainer,
-                            fontWeight:
-                                FontWeight.w700,
+                          style: text.bodySmall?.copyWith(
+                            color: colors.onPrimaryContainer,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -516,20 +581,16 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
 
             if (_selectedFilter != 'All')
-              const SizedBox(
-                height: AppSpacing.large,
-              ),
+              const SizedBox(height: AppSpacing.large),
 
             // ─────────────────────────────────────
             // History List
             // ─────────────────────────────────────
-
             Expanded(
               child: filteredHistory.isEmpty
                   ? _buildEmptyState(context)
                   : ListView(
-                      padding:
-                          const EdgeInsets.fromLTRB(
+                      padding: const EdgeInsets.fromLTRB(
                         AppSpacing.large,
                         0,
                         AppSpacing.large,
@@ -537,10 +598,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       ),
 
                       children: [
-
-                        for (var group
-                            in groupedHistory.entries) ...[
-
+                        for (var group in groupedHistory.entries) ...[
                           // Date
                           _buildSectionHeader(
                             context,
@@ -548,21 +606,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             group.value.length,
                           ),
 
-                          const SizedBox(
-                            height: AppSpacing.normal,
-                          ),
+                          const SizedBox(height: AppSpacing.normal),
 
                           // Items
-                          for (HistoryItem item
-                              in group.value)
-                            _buildHistoryCard(
-                              context,
-                              item,
-                            ),
+                          for (NudgeHistory item in group.value)
+                            _buildHistoryCard(context, item),
 
-                          const SizedBox(
-                            height: AppSpacing.small,
-                          ),
+                          const SizedBox(height: AppSpacing.small),
                         ],
                       ],
                     ),
@@ -577,16 +627,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // Section Header
   // ─────────────────────────────────────────────
 
-  Widget _buildSectionHeader(
-    BuildContext context,
-    String label,
-    int count,
-  ) {
+  Widget _buildSectionHeader(BuildContext context, String label, int count) {
     ThemeData theme = Theme.of(context);
 
     return Row(
       children: [
-
         Expanded(
           child: Text(
             label,
@@ -594,8 +639,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             style: theme.textTheme.labelMedium?.copyWith(
               fontWeight: FontWeight.w800,
               letterSpacing: 1.2,
-              color:
-                  theme.colorScheme.onSurfaceVariant,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ),
@@ -603,10 +647,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
         Text(
           '$count ${count == 1 ? 'event' : 'events'}',
 
-          style:
-              theme.textTheme.bodySmall?.copyWith(
-            color:
-                theme.colorScheme.onSurfaceVariant,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -618,10 +660,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // History Card
   // ─────────────────────────────────────────────
 
-  Widget _buildHistoryCard(
-    BuildContext context,
-    HistoryItem item,
-  ) {
+  Widget _buildHistoryCard(BuildContext context, NudgeHistory item) {
     ThemeData theme = Theme.of(context);
 
     ColorScheme colors = theme.colorScheme;
@@ -629,9 +668,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     TextTheme text = theme.textTheme;
 
     return Container(
-      margin: const EdgeInsets.only(
-        bottom: AppSpacing.small,
-      ),
+      margin: const EdgeInsets.only(bottom: AppSpacing.small),
 
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.normal,
@@ -641,18 +678,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
       decoration: BoxDecoration(
         color: colors.surface,
 
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusMedium,
-        ),
+        borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
 
-        border: Border.all(
-          color: colors.outline,
-        ),
+        border: Border.all(color: colors.outline),
       ),
 
       child: Row(
         children: [
-
           // Check Icon
           Container(
             width: 40,
@@ -670,62 +702,51 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
 
-          const SizedBox(
-            width: AppSpacing.normal,
-          ),
+          const SizedBox(width: AppSpacing.normal),
 
           // Information
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-
                 // Title
                 Text(
-                  item.title,
+                  _getNudge(item.nudgeId)?.title ?? 'Unknown Nudge',
 
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
-                  style: text.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: text.bodyLarge?.copyWith(fontWeight: FontWeight.w700),
                 ),
 
-                const SizedBox(
-                  height: AppSpacing.micro,
-                ),
+                const SizedBox(height: AppSpacing.micro),
 
                 // Location + Category
                 Text(
-                  '${item.location} · ${item.category}',
+                  '${_getPlaceName(_getNudge(item.nudgeId)?.placeId ?? '')} · '
+                  '${_getCategoryName(_getNudge(item.nudgeId)?.categoryId ?? '')}',
 
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
 
                   style: text.bodySmall?.copyWith(
-                    color:
-                        colors.onSurfaceVariant,
+                    color: colors.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(
-            width: AppSpacing.small,
-          ),
+          const SizedBox(width: AppSpacing.small),
 
           // Time
           Text(
-            _getTime(item.date),
+            _getTime(item.triggeredAt),
 
             style: text.bodySmall?.copyWith(
               fontWeight: FontWeight.w700,
-              color:
-                  colors.onSurfaceVariant,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -737,48 +758,37 @@ class _HistoryScreenState extends State<HistoryScreen> {
   // Empty State
   // ─────────────────────────────────────────────
 
-  Widget _buildEmptyState(
-    BuildContext context,
-  ) {
+  Widget _buildEmptyState(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
     return Center(
       child: Column(
-        mainAxisAlignment:
-            MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
 
         children: [
-
           Icon(
             Icons.history_rounded,
             size: 48,
             color: theme.colorScheme.primary,
           ),
 
-          const SizedBox(
-            height: AppSpacing.normal,
-          ),
+          const SizedBox(height: AppSpacing.normal),
 
           Text(
             'No history found',
 
-            style:
-                theme.textTheme.titleLarge?.copyWith(
+            style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w800,
             ),
           ),
 
-          const SizedBox(
-            height: AppSpacing.small,
-          ),
+          const SizedBox(height: AppSpacing.small),
 
           Text(
             'There are no events for this filter.',
 
-            style:
-                theme.textTheme.bodyMedium?.copyWith(
-              color:
-                  theme.colorScheme.onSurfaceVariant,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
         ],
