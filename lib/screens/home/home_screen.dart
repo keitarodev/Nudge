@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../models/nudge.dart';
+import '../../models/nudge_category.dart';
+import '../../models/place.dart';
+
 import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
@@ -10,41 +14,97 @@ import '../history/history_screen.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Temporary data for UI testing
-  final List<Map<String, String>> nudges = const [
-    {
-      'title': 'Buy chicken',
-      'category': 'Food',
-      'place': 'Market',
-      'trigger': 'When I arrive',
-      'radius': '200 m',
-    },
-    {
-      'title': 'Submit document',
-      'category': 'Study',
-      'place': 'University',
-      'trigger': 'When I arrive',
-      'radius': '300 m',
-    },
-    {
-      'title': 'Go to work',
-      'category': 'Work',
-      'place': 'Office',
-      'trigger': 'When I leave',
-      'radius': '150 m',
-    },
+  // Temporary data
+  static const List<NudgeCategory> categories = [
+    NudgeCategory(
+      id: 'food',
+      name: 'Food',
+    ),
+    NudgeCategory(
+      id: 'study',
+      name: 'Study',
+    ),
+    NudgeCategory(
+      id: 'work',
+      name: 'Work',
+    ),
+  ];
+
+  // Saved places
+  static const List<SavedPlace> places = [
+    SavedPlace(
+      id: 'market',
+      name: 'Market',
+      address: 'Local Market',
+    ),
+    SavedPlace(
+      id: 'university',
+      name: 'University',
+      address: 'University',
+    ),
+    SavedPlace(
+      id: 'office',
+      name: 'Office',
+      address: 'Office',
+    ),
+  ];
+
+  // Temporary nudges
+  static final List<Nudge> nudges = [
+    Nudge(
+      id: '1',
+      title: 'Buy chicken',
+      categoryId: 'food',
+      placeId: 'market',
+      trigger: NudgeTrigger.arrive,
+      radius: 200,
+      status: 'active',
+      createdAt: DateTime(2026, 9, 11),
+    ),
+    Nudge(
+      id: '2',
+      title: 'Submit document',
+      categoryId: 'study',
+      placeId: 'university',
+      trigger: NudgeTrigger.arrive,
+      radius: 300,
+      status: 'active',
+      createdAt: DateTime(2026, 9, 11),
+    ),
+    Nudge(
+      id: '3',
+      title: 'Go to work',
+      categoryId: 'work',
+      placeId: 'office',
+      trigger: NudgeTrigger.leave,
+      radius: 150,
+      status: 'active',
+      createdAt: DateTime(2026, 9, 11),
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Trigger counts
+    final arriveCount = nudges
+        .where((nudge) => nudge.trigger == NudgeTrigger.arrive)
+        .length;
+
+    final leaveCount = nudges
+        .where((nudge) => nudge.trigger == NudgeTrigger.leave)
+        .length;
+
+    final nearbyCount = nudges
+        .where((nudge) => nudge.trigger == NudgeTrigger.nearby)
+        .length;
+
     return Scaffold(
+      // Background
       backgroundColor: theme.scaffoldBackgroundColor,
 
-      // ─────────────────────────────────────────────
       // Header
-      // ─────────────────────────────────────────────
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
         elevation: 0,
@@ -52,6 +112,7 @@ class HomeScreen extends StatelessWidget {
         centerTitle: false,
         titleSpacing: AppSpacing.large,
 
+        // Logo + name
         title: Transform.translate(
           offset: const Offset(0, -2),
           child: Row(
@@ -63,11 +124,9 @@ class HomeScreen extends StatelessWidget {
                 height: 40,
                 fit: BoxFit.contain,
               ),
-
               const SizedBox(
                 width: AppSpacing.small,
               ),
-
               Text(
                 'nudge',
                 style: AppTextStyles.heading,
@@ -76,11 +135,8 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
 
-        // ─────────────────────────────────────────────
-        // Header Actions
-        // ─────────────────────────────────────────────
+        // Header buttons
         actions: [
-          // History
           IconButton(
             onPressed: () {
               Navigator.push(
@@ -94,8 +150,6 @@ class HomeScreen extends StatelessWidget {
               Icons.history_outlined,
             ),
           ),
-
-          // Notifications
           Padding(
             padding: const EdgeInsets.only(
               right: AppSpacing.large,
@@ -112,9 +166,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
 
-      // ─────────────────────────────────────────────
-      // Body
-      // ─────────────────────────────────────────────
+      // Main content
       body: ListView(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.large,
@@ -123,9 +175,7 @@ class HomeScreen extends StatelessWidget {
           AppSpacing.large,
         ),
         children: [
-          // ─────────────────────────────────────────────
-          // Active Nudge Summary
-          // ─────────────────────────────────────────────
+          // Active nudges summary
           Container(
             padding: const EdgeInsets.all(
               AppSpacing.large,
@@ -139,80 +189,76 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Active Nudge Text
-                    Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${nudges.length} Active Nudges',
-                          style: TextStyle(
-                            color: AppColors.dark,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
+                // Total nudges
+                Text(
+                  '${nudges.length} Active Nudges',
+                  style: const TextStyle(
+                    color: AppColors.dark,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
 
-                        const SizedBox(
-                          height: AppSpacing.small,
-                        ),
+                const SizedBox(
+                  height: AppSpacing.small,
+                ),
 
-                        Text(
-                          'Your location reminders are active',
-                          style: TextStyle(
-                            color: AppColors.dark.withValues(alpha: 0.7),
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                // Description
+                Text(
+                  'Your location reminders are active',
+                  style: TextStyle(
+                    color: AppColors.dark.withValues(
+                      alpha: 0.7,
                     ),
-
-                    // Notification Icon
-                    Transform.translate(
-                      offset: const Offset(0, 1),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.dark.withValues(alpha: 0.12),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          Icons.notifications_active,
-                          color: AppColors.dark,
-                          size: AppSizes.icon,
-                        ),
-                      ),
-                    ),
-                  ],
+                    fontSize: 14,
+                  ),
                 ),
 
                 const SizedBox(
                   height: AppSpacing.large,
                 ),
 
-                // Arrive / Leave Summary
+                // Trigger statistics
                 Row(
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
                   children: [
-                    _buildSummaryItem(
-                      context,
-                      Icons.login,
-                      '2 arrive',
+                    // Arrive
+                    _buildSummaryStat(
+                      value: arriveCount.toString(),
+                      label: 'ARRIVE',
                     ),
 
-                    const SizedBox(
-                      width: AppSpacing.small,
+                    // Divider
+                    Container(
+                      width: 1,
+                      height: 32,
+                      color: AppColors.dark.withValues(
+                        alpha: 0.18,
+                      ),
                     ),
 
-                    _buildSummaryItem(
-                      context,
-                      Icons.logout,
-                      '1 leave',
+                    // Leave
+                    _buildSummaryStat(
+                      value: leaveCount.toString(),
+                      label: 'LEAVE',
+                    ),
+
+                    // Divider
+                    Container(
+                      width: 1,
+                      height: 32,
+                      color: AppColors.dark.withValues(
+                        alpha: 0.18,
+                      ),
+                    ),
+
+                    // Nearby
+                    _buildSummaryStat(
+                      value: nearbyCount.toString(),
+                      label: 'NEARBY',
                     ),
                   ],
                 ),
@@ -224,9 +270,7 @@ class HomeScreen extends StatelessWidget {
             height: AppSpacing.large,
           ),
 
-          // ─────────────────────────────────────────────
-          // TODAY
-          // ─────────────────────────────────────────────
+          // Today header
           Row(
             mainAxisAlignment:
                 MainAxisAlignment.spaceBetween,
@@ -237,12 +281,13 @@ class HomeScreen extends StatelessWidget {
                 'TODAY',
                 style: AppTextStyles.sectionHeading,
               ),
-
               TextButton(
                 onPressed: () {
                   // TODO: Open all nudges
                 },
-                child: const Text('See all'),
+                child: const Text(
+                  'See all',
+                ),
               ),
             ],
           ),
@@ -251,9 +296,7 @@ class HomeScreen extends StatelessWidget {
             height: AppSpacing.standard,
           ),
 
-          // ─────────────────────────────────────────────
-          // Nudge List
-          // ─────────────────────────────────────────────
+          // Nudge list
           for (final nudge in nudges)
             _buildNudgeCard(
               context,
@@ -264,58 +307,61 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Summary Item
-  // ─────────────────────────────────────────────
-  Widget _buildSummaryItem(
-    BuildContext context,
-    IconData icon,
-    String text,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.standard,
-        vertical: AppSpacing.small,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.dark.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusMedium,
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            size: 16,
+  // Summary stat
+  Widget _buildSummaryStat({
+    required String value,
+    required String label,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        // Number
+        Text(
+          value,
+          style: const TextStyle(
             color: AppColors.dark,
+            fontSize: 26,
+            fontWeight: FontWeight.w800,
           ),
+        ),
 
-          const SizedBox(
-            width: AppSpacing.small,
-          ),
+        const SizedBox(
+          width: 8,
+        ),
 
-          Text(
-            text,
-            style: TextStyle(
-              color: AppColors.dark,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
+        // Label
+        Text(
+          label,
+          style: TextStyle(
+            color: AppColors.dark.withValues(
+              alpha: 0.65,
             ),
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.0,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  // ─────────────────────────────────────────────
-  // Compact Nudge Card
-  // ─────────────────────────────────────────────
+  // Nudge card
   Widget _buildNudgeCard(
     BuildContext context,
-    Map<String, String> nudge,
+    Nudge nudge,
   ) {
     final theme = Theme.of(context);
+
+    // Find related data
+    final category = categories.firstWhere(
+      (item) => item.id == nudge.categoryId,
+    );
+
+    final place = places.firstWhere(
+      (item) => item.id == nudge.placeId,
+    );
 
     return Card(
       margin: const EdgeInsets.only(
@@ -327,161 +373,64 @@ class HomeScreen extends StatelessWidget {
           AppSizes.radiusLarge,
         ),
         side: BorderSide(
-          color: Color(0xFFE0E0E0),
+          color: theme.colorScheme.outlineVariant,
         ),
       ),
+
+      // Card content
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.standard,
-          vertical: AppSpacing.small,
+          vertical: AppSpacing.standard,
         ),
-        child: Row(
+        child: Column(
+          crossAxisAlignment:
+              CrossAxisAlignment.start,
           children: [
-            // ─────────────────────────────────────────
-            // Category Icon
-            // ─────────────────────────────────────────
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer,
-                borderRadius: BorderRadius.circular(
-                  AppSizes.radiusMedium,
-                ),
-              ),
-              child: Icon(
-                _getCategoryIcon(
-                  nudge['category']!,
-                ),
-                color: theme.colorScheme.onPrimaryContainer,
-                size: AppSizes.icon,
-              ),
-            ),
-
-            const SizedBox(
-              width: AppSpacing.standard,
-            ),
-
-            // ─────────────────────────────────────────
-            // Nudge Information
-            // ─────────────────────────────────────────
-            Expanded(
-              child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    MainAxisAlignment.center,
-                children: [
-                  // Title
-                  Text(
-                    nudge['title']!,
+            // Title + category
+            Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    nudge.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTextStyles.cardTitle,
                   ),
+                ),
 
-                  const SizedBox(
-                    height: 6,
+                const SizedBox(
+                  width: AppSpacing.small,
+                ),
+
+                Text(
+                  category.name,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: theme.colorScheme.secondary,
                   ),
-
-                  // Location + Trigger + Radius
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        size: 17,
-                        color: theme.colorScheme.secondary,
-                      ),
-
-                      const SizedBox(
-                        width: 4,
-                      ),
-
-                      Flexible(
-                        child: Text(
-                          nudge['place']!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 8,
-                      ),
-
-                      Icon(
-                        Icons.notifications_outlined,
-                        size: 17,
-                        color: theme.colorScheme.secondary,
-                      ),
-
-                      const SizedBox(
-                        width: 4,
-                      ),
-
-                      Flexible(
-                        child: Text(
-                          nudge['trigger']!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 8,
-                      ),
-
-                      Text(
-                        nudge['radius']!,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
 
             const SizedBox(
-              width: AppSpacing.small,
+              height: AppSpacing.small,
             ),
 
-            // ─────────────────────────────────────────
-            // Arrow
-            // ─────────────────────────────────────────
-            Icon(
-              Icons.chevron_right,
-              color: theme.colorScheme.secondary,
+            // Place + trigger + radius
+            Text(
+              '${place.name} · '
+              '${nudge.trigger.label} · '
+              '${nudge.radius} m',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.bodySmall,
             ),
           ],
         ),
       ),
     );
-  }
-
-  // ─────────────────────────────────────────────
-  // Category Icon
-  // ─────────────────────────────────────────────
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Health':
-        return Icons.health_and_safety_outlined;
-
-      case 'Study':
-        return Icons.school_outlined;
-
-      case 'Shopping':
-        return Icons.shopping_bag_outlined;
-
-      case 'Work':
-        return Icons.work_outline;
-
-      case 'Home':
-        return Icons.home_outlined;
-
-      default:
-        return Icons.more_horiz;
-    }
   }
 }
