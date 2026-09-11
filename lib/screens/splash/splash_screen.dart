@@ -7,7 +7,10 @@ import '../../theme/app_colors.dart';
 class SplashScreen extends StatefulWidget {
   final VoidCallback onFinished;
 
-  const SplashScreen({super.key, required this.onFinished});
+  const SplashScreen({
+    super.key,
+    required this.onFinished,
+  });
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -19,7 +22,10 @@ class _SplashScreenState extends State<SplashScreen> {
     super.initState();
 
     // Wait for 2 seconds, then open the main app
-    Timer(const Duration(seconds: 2), widget.onFinished);
+    Timer(
+      const Duration(seconds: 2),
+      widget.onFinished,
+    );
   }
 
   @override
@@ -32,23 +38,24 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // ─────────────────────────────────────────────
             // Nudge Logo
-            // ─────────────────────────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.lightBackground,
-                borderRadius: BorderRadius.circular(20),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 10,
               ),
-              child: Image.asset('assets/images/nudge_logo-02.png', width: 150),
+              
+              child: Image.asset(
+                Theme.of(context).brightness == Brightness.dark
+                    ? 'assets/images/nudge_logo-03.png'
+                    : 'assets/images/nudge_logo-02.png',
+                width: 150,
+              ),
             ),
 
-            // ─────────────────────────────────────────────
-            // App Name
-            // ─────────────────────────────────────────────
-            // Text('Nudge', style: AppTextStyles.heading),
-            const SizedBox(height: AppSpacing.small),
+            const SizedBox(
+              height: AppSpacing.small,
+            ),
 
             Text(
               'Remember when it matters.',
