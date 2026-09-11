@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nudge/screens/notifications/notifications_screen.dart';
 
 import '../../models/nudge.dart';
 import '../../models/nudge_category.dart';
@@ -20,7 +21,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   bool hasNotification = true;
   // Temporary data
   static const List<NudgeCategory> categories = [
@@ -173,7 +173,12 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 IconButton(
                   onPressed: () {
-                    // TODO: Open notifications
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationsScreen(),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.notifications_none_outlined),
                 ),

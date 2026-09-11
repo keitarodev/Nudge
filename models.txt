@@ -1,0 +1,98 @@
+lib/models/nudge_category.dart
+
+===== lib/models/nudge_category.dart =====
+class NudgeCategory {
+  final String id;
+  final String name;
+
+  const NudgeCategory({
+    required this.id,
+    required this.name,
+  });
+}lib/models/place.dart
+
+===== lib/models/place.dart =====
+class SavedPlace {
+  final String id;
+  final String name;
+  final String address;
+
+  const SavedPlace({
+    required this.id,
+    required this.name,
+    required this.address,
+  });
+}
+lib/models/nudge.dart
+
+===== lib/models/nudge.dart =====
+enum NudgeTrigger { arrive, leave, nearby }
+
+extension NudgeTriggerLabel on NudgeTrigger {
+  String get label {
+    switch (this) {
+      case NudgeTrigger.arrive:
+        return 'When I arrive';
+      case NudgeTrigger.leave:
+        return 'When I leave';
+      case NudgeTrigger.nearby:
+        return 'When I’m nearby';
+    }
+  }
+}
+
+class Nudge {
+  final String id;
+  final String title;
+  final String categoryId;
+  final String placeId;
+  final NudgeTrigger trigger;
+  final int radius;
+  final String status;
+  final DateTime createdAt;
+  final DateTime? lastTriggeredAt;
+
+  const Nudge({
+    required this.id,
+    required this.title,
+    required this.categoryId,
+    required this.placeId,
+    required this.trigger,
+    required this.radius,
+    required this.status,
+    required this.createdAt,
+    this.lastTriggeredAt,
+  });
+}
+lib/models/nudge_history.dart
+
+===== lib/models/nudge_history.dart =====
+class NudgeHistory {
+  final String id;
+  final String nudgeId;
+  final String status;
+  final DateTime triggeredAt;
+
+  const NudgeHistory({
+    required this.id,
+    required this.nudgeId,
+    required this.status,
+    required this.triggeredAt,
+  });
+}
+lib/models/history_item.dart
+
+===== lib/models/history_item.dart =====
+class HistoryItem {
+  final String title;
+  final String location;
+  final DateTime date;
+  final String category;
+
+  HistoryItem({
+    required this.title,
+    required this.location,
+    required this.date,
+    required this.category,
+  });
+}
