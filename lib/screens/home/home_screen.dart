@@ -10,47 +10,34 @@ import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 
 import '../history/history_screen.dart';
+import 'edit_nudge_bottom_sheet.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  bool hasNotification = true;
   // Temporary data
   static const List<NudgeCategory> categories = [
-    NudgeCategory(
-      id: 'food',
-      name: 'Food',
-    ),
-    NudgeCategory(
-      id: 'study',
-      name: 'Study',
-    ),
-    NudgeCategory(
-      id: 'work',
-      name: 'Work',
-    ),
+    NudgeCategory(id: 'food', name: 'Food'),
+    NudgeCategory(id: 'study', name: 'Study'),
+    NudgeCategory(id: 'work', name: 'Work'),
   ];
 
   // Saved places
   static const List<SavedPlace> places = [
-    SavedPlace(
-      id: 'market',
-      name: 'Market',
-      address: 'Local Market',
-    ),
-    SavedPlace(
-      id: 'university',
-      name: 'University',
-      address: 'University',
-    ),
-    SavedPlace(
-      id: 'office',
-      name: 'Office',
-      address: 'Office',
-    ),
+    SavedPlace(id: 'market', name: 'Market', address: 'Local Market'),
+    SavedPlace(id: 'university', name: 'University', address: 'University'),
+    SavedPlace(id: 'office', name: 'Office', address: 'Office'),
   ];
 
   // Temporary nudges
-  static final List<Nudge> nudges = [
+  static List<Nudge> nudges = [
     Nudge(
       id: '1',
       title: 'Buy chicken',
@@ -83,6 +70,43 @@ class HomeScreen extends StatelessWidget {
     ),
   ];
 
+  // Edit Nudge
+  Future<void> editNudge(Nudge nudge) async {
+    final updatedNudge = await showModalBottomSheet<Nudge>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return EditNudgeBottomSheet(
+          nudge: nudge,
+          categories: categories,
+          places: places,
+        );
+      },
+    );
+
+    // Update Home after saving
+    if (updatedNudge != null) {
+      setState(() {
+        final index = nudges.indexWhere((item) => item.id == updatedNudge.id);
+
+        if (index != -1) {
+          nudges[index] = updatedNudge;
+        }
+      });
+    }
+  }
+
+  // Complete Nudge
+  void completeNudge(Nudge nudge) {
+    setState(() {
+      nudges.removeWhere((item) => item.id == nudge.id);
+    });
+
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Nudge completed')));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -101,7 +125,6 @@ class HomeScreen extends StatelessWidget {
         .length;
 
     return Scaffold(
-      // Background
       backgroundColor: theme.scaffoldBackgroundColor,
 
       // Header
@@ -124,13 +147,10 @@ class HomeScreen extends StatelessWidget {
                 height: 40,
                 fit: BoxFit.contain,
               ),
-              const SizedBox(
-                width: AppSpacing.small,
-              ),
-              Text(
-                'nudge',
-                style: AppTextStyles.heading,
-              ),
+
+              const SizedBox(width: AppSpacing.small),
+
+              Text('nudge', style: AppTextStyles.heading),
             ],
           ),
         ),
@@ -141,26 +161,38 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HistoryScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const HistoryScreen()),
               );
             },
-            icon: const Icon(
-              Icons.history_outlined,
-            ),
+            icon: const Icon(Icons.history_outlined),
           ),
+
           Padding(
-            padding: const EdgeInsets.only(
-              right: AppSpacing.large,
-            ),
-            child: IconButton(
-              onPressed: () {
-                // TODO: Open notifications
-              },
-              icon: const Icon(
-                Icons.notifications_none_outlined,
-              ),
+            padding: const EdgeInsets.only(right: AppSpacing.large),
+            child: Stack(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    // TODO: Open notifications
+                  },
+                  icon: const Icon(Icons.notifications_none_outlined),
+                ),
+
+                // Red notification dot
+                if (hasNotification)
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.error,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ],
@@ -177,14 +209,10 @@ class HomeScreen extends StatelessWidget {
         children: [
           // Active nudges summary
           Container(
-            padding: const EdgeInsets.all(
-              AppSpacing.large,
-            ),
+            padding: const EdgeInsets.all(AppSpacing.large),
             decoration: BoxDecoration(
               color: theme.colorScheme.primary,
-              borderRadius: BorderRadius.circular(
-                AppSizes.radiusLarge,
-              ),
+              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,31 +227,23 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(
-                  height: AppSpacing.small,
-                ),
+                const SizedBox(height: AppSpacing.small),
 
                 // Description
                 Text(
                   'Your location reminders are active',
                   style: TextStyle(
-                    color: AppColors.dark.withValues(
-                      alpha: 0.7,
-                    ),
+                    color: AppColors.dark.withValues(alpha: 0.7),
                     fontSize: 14,
                   ),
                 ),
 
-                const SizedBox(
-                  height: AppSpacing.large,
-                ),
+                const SizedBox(height: AppSpacing.large),
 
                 // Trigger statistics
                 Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Arrive
                     _buildSummaryStat(
@@ -235,9 +255,7 @@ class HomeScreen extends StatelessWidget {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark.withValues(
-                        alpha: 0.18,
-                      ),
+                      color: AppColors.dark.withValues(alpha: 0.18),
                     ),
 
                     // Leave
@@ -250,9 +268,7 @@ class HomeScreen extends StatelessWidget {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark.withValues(
-                        alpha: 0.18,
-                      ),
+                      color: AppColors.dark.withValues(alpha: 0.18),
                     ),
 
                     // Nearby
@@ -266,52 +282,35 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(
-            height: AppSpacing.large,
-          ),
+          const SizedBox(height: AppSpacing.large),
 
           // Today header
           Row(
-            mainAxisAlignment:
-                MainAxisAlignment.spaceBetween,
-            crossAxisAlignment:
-                CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'TODAY',
-                style: AppTextStyles.sectionHeading,
-              ),
+              Text('TODAY', style: AppTextStyles.sectionHeading),
+
               TextButton(
                 onPressed: () {
                   // TODO: Open all nudges
                 },
-                child: const Text(
-                  'See all',
-                ),
+                child: const Text('See all'),
               ),
             ],
           ),
 
-          const SizedBox(
-            height: AppSpacing.standard,
-          ),
+          const SizedBox(height: AppSpacing.standard),
 
           // Nudge list
-          for (final nudge in nudges)
-            _buildNudgeCard(
-              context,
-              nudge,
-            ),
+          for (final nudge in nudges) _buildNudgeCard(context, nudge),
         ],
       ),
     );
   }
 
   // Summary stat
-  Widget _buildSummaryStat({
-    required String value,
-    required String label,
-  }) {
+  Widget _buildSummaryStat({required String value, required String label}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -327,17 +326,13 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
 
-        const SizedBox(
-          width: 8,
-        ),
+        const SizedBox(width: 8),
 
         // Label
         Text(
           label,
           style: TextStyle(
-            color: AppColors.dark.withValues(
-              alpha: 0.65,
-            ),
+            color: AppColors.dark.withValues(alpha: 0.65),
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.0,
@@ -348,10 +343,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   // Nudge card
-  Widget _buildNudgeCard(
-    BuildContext context,
-    Nudge nudge,
-  ) {
+  Widget _buildNudgeCard(BuildContext context, Nudge nudge) {
     final theme = Theme.of(context);
 
     // Find related data
@@ -359,76 +351,101 @@ class HomeScreen extends StatelessWidget {
       (item) => item.id == nudge.categoryId,
     );
 
-    final place = places.firstWhere(
-      (item) => item.id == nudge.placeId,
-    );
+    final place = places.firstWhere((item) => item.id == nudge.placeId);
 
-    return Card(
-      margin: const EdgeInsets.only(
-        bottom: AppSpacing.standard,
-      ),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusLarge,
-        ),
-        side: BorderSide(
-          color: theme.colorScheme.outlineVariant,
-        ),
-      ),
+    return Dismissible(
+      // Unique key for each Nudge
+      key: Key(nudge.id),
 
-      // Card content
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.standard,
-          vertical: AppSpacing.standard,
+      // Only allow swipe from right to left
+      direction: DismissDirection.endToStart,
+
+      // Background while swiping
+      background: Container(
+        margin: const EdgeInsets.only(bottom: AppSpacing.standard),
+        padding: const EdgeInsets.only(right: AppSpacing.large),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.primary,
+          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
         ),
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+        alignment: Alignment.centerRight,
+        child: const Row(
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            // Title + category
-            Row(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center,
+            Icon(Icons.check),
+
+            SizedBox(width: AppSpacing.small),
+
+            Text('Complete'),
+          ],
+        ),
+      ),
+
+      // When the swipe is completed
+      onDismissed: (direction) {
+        completeNudge(nudge);
+      },
+
+      // Nudge card
+      child: Card(
+        margin: const EdgeInsets.only(bottom: AppSpacing.standard),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+          side: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+          onTap: () {
+            editNudge(nudge);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.standard,
+              vertical: AppSpacing.standard,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    nudge.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTextStyles.cardTitle,
-                  ),
+                // Title + category
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        nudge.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.cardTitle,
+                      ),
+                    ),
+
+                    const SizedBox(width: AppSpacing.small),
+
+                    Text(
+                      category.name,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.secondary,
+                      ),
+                    ),
+                  ],
                 ),
 
-                const SizedBox(
-                  width: AppSpacing.small,
-                ),
+                const SizedBox(height: AppSpacing.small),
 
+                // Place + trigger + radius
                 Text(
-                  category.name,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.secondary,
-                  ),
+                  '${place.name} · '
+                  '${nudge.trigger.label} · '
+                  '${nudge.radius} m',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodySmall,
                 ),
               ],
             ),
-
-            const SizedBox(
-              height: AppSpacing.small,
-            ),
-
-            // Place + trigger + radius
-            Text(
-              '${place.name} · '
-              '${nudge.trigger.label} · '
-              '${nudge.radius} m',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall,
-            ),
-          ],
+          ),
         ),
       ),
     );
