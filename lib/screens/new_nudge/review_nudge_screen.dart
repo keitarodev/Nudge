@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/app_data.dart';
 import '../../models/nudge.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
@@ -7,7 +8,30 @@ import '../../theme/app_spacing.dart';
 class ReviewNudgeScreen extends StatelessWidget {
   final Nudge nudge;
 
-  const ReviewNudgeScreen({super.key, required this.nudge});
+  const ReviewNudgeScreen({
+    super.key,
+    required this.nudge,
+  });
+
+  String _getCategoryName() {
+    for (final category in AppData.categories) {
+      if (category.id == nudge.categoryId) {
+        return category.name;
+      }
+    }
+
+    return nudge.categoryId;
+  }
+
+  String _getPlaceName() {
+    for (final place in AppData.places) {
+      if (place.id == nudge.placeId) {
+        return place.name;
+      }
+    }
+
+    return nudge.placeId;
+  }
 
   String _radiusLabel(double radius) {
     if (radius == 1000) {
@@ -23,27 +47,42 @@ class ReviewNudgeScreen extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.large),
+      padding: const EdgeInsets.all(
+        AppSpacing.large,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Review your Nudge', style: textTheme.displayLarge),
-          const SizedBox(height: AppSpacing.small),
+          Text(
+            'Review your Nudge',
+            style: textTheme.displayLarge,
+          ),
+          const SizedBox(
+            height: AppSpacing.small,
+          ),
           Text(
             'Check the details before saving.',
             style: textTheme.bodyLarge?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: AppSpacing.extraLarge),
+          const SizedBox(
+            height: AppSpacing.extraLarge,
+          ),
 
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.large),
+            padding: const EdgeInsets.all(
+              AppSpacing.large,
+            ),
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-              border: Border.all(color: colorScheme.outlineVariant),
+              borderRadius: BorderRadius.circular(
+                AppSizes.radiusLarge,
+              ),
+              border: Border.all(
+                color: colorScheme.outlineVariant,
+              ),
             ),
             child: Column(
               children: [
@@ -53,15 +92,21 @@ class ReviewNudgeScreen extends StatelessWidget {
                   label: 'Reminder',
                   value: nudge.title,
                 ),
-                const Divider(height: AppSpacing.extraLarge),
+
+                const Divider(
+                  height: AppSpacing.extraLarge,
+                ),
 
                 _buildReviewRow(
                   context: context,
                   icon: Icons.category_outlined,
                   label: 'Category',
-                  value: nudge.categoryId,
+                  value: _getCategoryName(),
                 ),
-                const Divider(height: AppSpacing.extraLarge),
+
+                const Divider(
+                  height: AppSpacing.extraLarge,
+                ),
 
                 _buildReviewRow(
                   context: context,
@@ -69,21 +114,29 @@ class ReviewNudgeScreen extends StatelessWidget {
                   label: 'Trigger',
                   value: nudge.trigger.label,
                 ),
-                const Divider(height: AppSpacing.extraLarge),
+
+                const Divider(
+                  height: AppSpacing.extraLarge,
+                ),
 
                 _buildReviewRow(
                   context: context,
                   icon: Icons.location_on_outlined,
                   label: 'Place',
-                  value: nudge.placeId,
+                  value: _getPlaceName(),
                 ),
-                const Divider(height: AppSpacing.extraLarge),
+
+                const Divider(
+                  height: AppSpacing.extraLarge,
+                ),
 
                 _buildReviewRow(
                   context: context,
                   icon: Icons.radar_rounded,
                   label: 'Radius',
-                  value: _radiusLabel(nudge.radius.toDouble()),
+                  value: _radiusLabel(
+                    nudge.radius.toDouble(),
+                  ),
                 ),
               ],
             ),
@@ -105,8 +158,13 @@ class ReviewNudgeScreen extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: colorScheme.primary),
-        const SizedBox(width: AppSpacing.standard),
+        Icon(
+          icon,
+          color: colorScheme.primary,
+        ),
+        const SizedBox(
+          width: AppSpacing.standard,
+        ),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,8 +175,13 @@ class ReviewNudgeScreen extends StatelessWidget {
                   color: colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: AppSpacing.micro),
-              Text(value, style: textTheme.titleLarge),
+              const SizedBox(
+                height: AppSpacing.micro,
+              ),
+              Text(
+                value,
+                style: textTheme.titleLarge,
+              ),
             ],
           ),
         ),

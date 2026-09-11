@@ -3,6 +3,7 @@ import 'package:nudge/screens/notifications/notifications_screen.dart';
 
 import '../../data/app_data.dart';
 import '../../models/nudge.dart';
+import '../../models/nudge_history.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
@@ -22,7 +23,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // Edit Nudge
   Future<void> editNudge(Nudge nudge) async {
-    final updatedNudge = await showModalBottomSheet<Nudge>(
+    final result = await showModalBottomSheet<Object?>(
       context: context,
       isScrollControlled: true,
       builder: (context) {
@@ -34,15 +35,17 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
 
-    // Update Home after saving
-    if (updatedNudge != null) {
+    // Update Home after saving or deleting
+    if (result == true) {
+      setState(() {});
+    } else if (result is Nudge) {
       setState(() {
         final index = AppData.nudges.indexWhere(
-          (item) => item.id == updatedNudge.id,
+          (item) => item.id == result.id,
         );
 
         if (index != -1) {
-          AppData.nudges[index] = updatedNudge;
+          AppData.nudges[index] = result;
         }
       });
     }
@@ -50,13 +53,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Complete Nudge
   void completeNudge(Nudge nudge) {
+    final historyItem = NudgeHistory(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      nudgeId: nudge.id,
+      status: 'completed',
+      triggeredAt: DateTime.now(),
+    );
+
+    // Add completed Nudge to history
+    AppData.history.add(historyItem);
+
+    // Change Nudge status to completed
     setState(() {
-      AppData.nudges.removeWhere((item) => item.id == nudge.id);
+      final index = AppData.nudges.indexWhere(
+        (item) => item.id == nudge.id,
+      );
+
+      if (index != -1) {
+        AppData.nudges[index] = Nudge(
+          id: nudge.id,
+          title: nudge.title,
+          categoryId: nudge.categoryId,
+          placeId: nudge.placeId,
+          trigger: nudge.trigger,
+          radius: nudge.radius,
+          status: 'completed',
+          createdAt: nudge.createdAt,
+          lastTriggeredAt: DateTime.now(),
+        );
+      }
     });
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Nudge completed')));
+    ).showSnackBar(
+      const SnackBar(
+        content: Text('Nudge completed'),
+      ),
+    );
   }
 
   @override
@@ -65,15 +99,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Trigger counts
     final arriveCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.arrive)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' &&
+              nudge.trigger == NudgeTrigger.arrive,
+        )
         .length;
 
     final leaveCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.leave)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' &&
+              nudge.trigger == NudgeTrigger.leave,
+        )
         .length;
 
     final nearbyCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.nearby)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' &&
+              nudge.trigger == NudgeTrigger.nearby,
+        )
         .length;
 
     return Scaffold(
@@ -100,9 +146,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 fit: BoxFit.contain,
               ),
 
-              const SizedBox(width: AppSpacing.small),
+              const SizedBox(
+                width: AppSpacing.small,
+              ),
 
-              Text('nudge', style: AppTextStyles.heading),
+              Text(
+                'nudge',
+                style: AppTextStyles.heading,
+              ),
             ],
           ),
         ),
@@ -114,7 +165,9 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                MaterialPageRoute(
+                  builder: (context) => const HistoryScreen(),
+                ),
               );
             },
             icon: const Icon(Icons.history_outlined),
@@ -122,7 +175,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Notification
           Padding(
-            padding: const EdgeInsets.only(right: AppSpacing.large),
+            padding: const EdgeInsets.only(
+              right: AppSpacing.large,
+            ),
             child: Stack(
               children: [
                 IconButton(
@@ -130,11 +185,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const NotificationsScreen(),
+                        builder: (context) =>
+                            const NotificationsScreen(),
                       ),
                     );
                   },
-                  icon: const Icon(Icons.notifications_none_outlined),
+                  icon: const Icon(
+                    Icons.notifications_none_outlined,
+                  ),
                 ),
 
                 // Notification red dot
@@ -168,17 +226,21 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           // Active nudges summary
           Container(
-            padding: const EdgeInsets.all(AppSpacing.large),
+            padding: const EdgeInsets.all(
+              AppSpacing.large,
+            ),
             decoration: BoxDecoration(
               color: theme.colorScheme.primary,
-              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              borderRadius: BorderRadius.circular(
+                AppSizes.radiusLarge,
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Total nudges
                 Text(
-                  '${AppData.nudges.length} Active Nudges',
+                  '${AppData.nudges.where((nudge) => nudge.status == 'active').length} Active Nudges',
                   style: const TextStyle(
                     color: AppColors.dark,
                     fontSize: 28,
@@ -186,23 +248,31 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
 
-                const SizedBox(height: AppSpacing.small),
+                const SizedBox(
+                  height: AppSpacing.small,
+                ),
 
                 // Description
                 Text(
                   'Your location reminders are active',
                   style: TextStyle(
-                    color: AppColors.dark.withValues(alpha: 0.7),
+                    color: AppColors.dark.withValues(
+                      alpha: 0.7,
+                    ),
                     fontSize: 14,
                   ),
                 ),
 
-                const SizedBox(height: AppSpacing.large),
+                const SizedBox(
+                  height: AppSpacing.large,
+                ),
 
                 // Trigger statistics
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
                   children: [
                     // Arrive
                     _buildSummaryStat(
@@ -214,7 +284,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark.withValues(alpha: 0.18),
+                      color: AppColors.dark.withValues(
+                        alpha: 0.18,
+                      ),
                     ),
 
                     // Leave
@@ -227,7 +299,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark.withValues(alpha: 0.18),
+                      color: AppColors.dark.withValues(
+                        alpha: 0.18,
+                      ),
                     ),
 
                     // Nearby
@@ -241,14 +315,21 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          const SizedBox(height: AppSpacing.large),
+          const SizedBox(
+            height: AppSpacing.large,
+          ),
 
           // Today header
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
+            crossAxisAlignment:
+                CrossAxisAlignment.center,
             children: [
-              Text('TODAY', style: AppTextStyles.sectionHeading),
+              Text(
+                'TODAY',
+                style: AppTextStyles.sectionHeading,
+              ),
 
               TextButton(
                 onPressed: () {
@@ -259,20 +340,29 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
 
-          const SizedBox(height: AppSpacing.standard),
+          const SizedBox(
+            height: AppSpacing.standard,
+          ),
 
           // Nudge list
-          for (final nudge in AppData.nudges) _buildNudgeCard(context, nudge),
+          for (final nudge in AppData.nudges.where(
+            (nudge) => nudge.status == 'active',
+          ))
+            _buildNudgeCard(context, nudge),
         ],
       ),
     );
   }
 
   // Summary stat
-  Widget _buildSummaryStat({required String value, required String label}) {
+  Widget _buildSummaryStat({
+    required String value,
+    required String label,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.baseline,
+      crossAxisAlignment:
+          CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
         // Number
@@ -291,7 +381,9 @@ class _HomeScreenState extends State<HomeScreen> {
         Text(
           label,
           style: TextStyle(
-            color: AppColors.dark.withValues(alpha: 0.65),
+            color: AppColors.dark.withValues(
+              alpha: 0.65,
+            ),
             fontSize: 11,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.0,
@@ -302,7 +394,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Nudge card
-  Widget _buildNudgeCard(BuildContext context, Nudge nudge) {
+  Widget _buildNudgeCard(
+    BuildContext context,
+    Nudge nudge,
+  ) {
     final theme = Theme.of(context);
 
     // Find related category
@@ -311,7 +406,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     // Find related place
-    final place = AppData.places.firstWhere((item) => item.id == nudge.placeId);
+    final place = AppData.places.firstWhere(
+      (item) => item.id == nudge.placeId,
+    );
 
     return Dismissible(
       // Unique key
@@ -322,19 +419,28 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Background shown while swiping
       background: Container(
-        margin: const EdgeInsets.only(bottom: AppSpacing.standard),
-        padding: const EdgeInsets.only(right: AppSpacing.large),
+        margin: const EdgeInsets.only(
+          bottom: AppSpacing.standard,
+        ),
+        padding: const EdgeInsets.only(
+          right: AppSpacing.large,
+        ),
         decoration: BoxDecoration(
           color: theme.colorScheme.primary,
-          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+          borderRadius: BorderRadius.circular(
+            AppSizes.radiusLarge,
+          ),
         ),
         alignment: Alignment.centerRight,
         child: const Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment:
+              MainAxisAlignment.end,
           children: [
             Icon(Icons.check),
 
-            SizedBox(width: AppSpacing.small),
+            SizedBox(
+              width: AppSpacing.small,
+            ),
 
             Text('Complete'),
           ],
@@ -348,14 +454,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Nudge card
       child: Card(
-        margin: const EdgeInsets.only(bottom: AppSpacing.standard),
+        margin: const EdgeInsets.only(
+          bottom: AppSpacing.standard,
+        ),
         elevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(
+            AppSizes.radiusLarge,
+          ),
+          side: BorderSide(
+            color: theme.colorScheme.outlineVariant,
+          ),
         ),
         child: InkWell(
-          borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+          borderRadius: BorderRadius.circular(
+            AppSizes.radiusLarge,
+          ),
           onTap: () {
             editNudge(nudge);
           },
@@ -365,34 +479,45 @@ class _HomeScreenState extends State<HomeScreen> {
               vertical: AppSpacing.standard,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 // Title + category
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
                         nudge.title,
                         maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.cardTitle,
+                        overflow:
+                            TextOverflow.ellipsis,
+                        style:
+                            AppTextStyles.cardTitle,
                       ),
                     ),
 
-                    const SizedBox(width: AppSpacing.small),
+                    const SizedBox(
+                      width: AppSpacing.small,
+                    ),
 
                     Text(
                       category.name,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: theme.colorScheme.secondary,
+                      style: theme.textTheme.bodySmall
+                          ?.copyWith(
+                        fontWeight:
+                            FontWeight.w700,
+                        color:
+                            theme.colorScheme.secondary,
                       ),
                     ),
                   ],
                 ),
 
-                const SizedBox(height: AppSpacing.small),
+                const SizedBox(
+                  height: AppSpacing.small,
+                ),
 
                 // Place + trigger + radius
                 Text(
@@ -400,8 +525,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   '${nudge.trigger.label} · '
                   '${nudge.radius} m',
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall,
+                  overflow:
+                      TextOverflow.ellipsis,
+                  style:
+                      theme.textTheme.bodySmall,
                 ),
               ],
             ),
