@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../../theme/app_colors.dart';
 import '../../models/notification_item.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
@@ -208,7 +208,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-        border: Border.all(color: theme.colorScheme.outline),
+        border: Border.all(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+              : AppColors.outlineLight,
+        ),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
