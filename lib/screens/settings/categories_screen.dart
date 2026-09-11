@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../data/app_data.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
@@ -9,18 +11,12 @@ class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
 
   @override
-  State<CategoriesScreen> createState() => _CategoriesScreenState();
+  State<CategoriesScreen> createState() =>
+      _CategoriesScreenState();
 }
 
-class _CategoriesScreenState extends State<CategoriesScreen> {
-  List<NudgeCategory> categories = [
-    NudgeCategory(id: "study_01", name: "Study"),
-    NudgeCategory(id: "work_01", name: "Work"),
-    NudgeCategory(id: "personal_01", name: "Personal"),
-    NudgeCategory(id: "food_01", name: "Food"),
-    NudgeCategory(id: "shopping_01", name: "Shopping"),
-    NudgeCategory(id: "health_01", name: "Health"),
-  ];
+class _CategoriesScreenState
+    extends State<CategoriesScreen> {
 
   void addCategory() {
     showCategoryDialog();
@@ -37,7 +33,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         return AlertDialog(
           title: const Text("Delete Category?"),
           content: Text(
-            'Are you sure you want to delete "${categories[index]}"?',
+            'Are you sure you want to delete '
+            '"${AppData.categories[index].name}"?',
           ),
           actions: [
             TextButton(
@@ -49,8 +46,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             TextButton(
               onPressed: () {
                 setState(() {
-                  categories.removeAt(index);
+                  AppData.categories.removeAt(index);
                 });
+
                 Navigator.pop(context);
               },
               child: const Text("Delete"),
@@ -63,7 +61,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   void showCategoryDialog({int? index}) {
     final controller = TextEditingController(
-      text: index == null ? "" : categories[index].name,
+      text: index == null
+          ? ""
+          : AppData.categories[index].name,
     );
 
     showDialog(
@@ -71,10 +71,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+            borderRadius: BorderRadius.circular(
+              AppSizes.radiusLarge,
+            ),
           ),
           title: Text(
-            index == null ? "Add Category" : "Edit Category",
+            index == null
+                ? "Add Category"
+                : "Edit Category",
             style: AppTextStyles.cardTitle,
           ),
           content: TextField(
@@ -82,7 +86,9 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             decoration: InputDecoration(
               hintText: "Category name",
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
+                borderRadius: BorderRadius.circular(
+                  AppSizes.radiusSmall,
+                ),
               ),
             ),
           ),
@@ -98,17 +104,23 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 if (controller.text.trim().isEmpty) {
                   return;
                 }
+
                 setState(() {
                   if (index == null) {
-                    categories.add(
+                    AppData.categories.add(
                       NudgeCategory(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        id: DateTime.now()
+                            .millisecondsSinceEpoch
+                            .toString(),
                         name: controller.text.trim(),
                       ),
                     );
                   } else {
-                    categories[index] = NudgeCategory(
-                      id: categories[index].id,
+                    AppData.categories[index] =
+                        NudgeCategory(
+                      id: AppData
+                          .categories[index]
+                          .id,
                       name: controller.text.trim(),
                     );
                   }
@@ -118,8 +130,11 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               },
               child: Text(
                 "Save",
-                style: AppTextStyles.buttonText.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
+                style:
+                    AppTextStyles.buttonText.copyWith(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .primary,
                 ),
               ),
             ),
@@ -134,10 +149,14 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: AppSpacing.standard,
-        title: Text("Categories", style: AppTextStyles.heading),
+        title: Text(
+          "Categories",
+          style: AppTextStyles.heading,
+        ),
       ),
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
@@ -147,48 +166,89 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               0,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
-                Text("Your Categories", style: AppTextStyles.sectionHeading),
-                const SizedBox(height: AppSpacing.small),
                 Text(
-                  "Manage the categories you use to organize your Nudges.",
-                  style: AppTextStyles.body.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  "Your Categories",
+                  style:
+                      AppTextStyles.sectionHeading,
+                ),
+
+                const SizedBox(
+                  height: AppSpacing.small,
+                ),
+
+                Text(
+                  "Manage the categories you use "
+                  "to organize your Nudges.",
+                  style:
+                      AppTextStyles.body.copyWith(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
+
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(AppSpacing.standard),
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
+              padding: const EdgeInsets.all(
+                AppSpacing.standard,
+              ),
+              itemCount:
+                  AppData.categories.length,
+              itemBuilder:
+                  (context, index) {
                 return Container(
-                  margin: const EdgeInsets.only(bottom: AppSpacing.small),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+                  margin: const EdgeInsets.only(
+                    bottom: AppSpacing.small,
+                  ),
+                  decoration:
+                      BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surface,
+                    borderRadius:
+                        BorderRadius.circular(
+                      AppSizes.radiusLarge,
+                    ),
                     border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                      color: Theme.of(context)
+                              .brightness ==
+                          Brightness.dark
+                          ? AppColors.outlineDark
+                              .withAlpha(
+                              (255 * 0.1).round(),
+                            )
                           : AppColors.outlineLight,
                     ),
                   ),
                   child: ListTile(
-                    title: Text(categories[index].name),
+                    title: Text(
+                      AppData
+                          .categories[index]
+                          .name,
+                    ),
                     trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize:
+                          MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit_outlined),
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                          ),
                           onPressed: () {
                             editCategory(index);
                           },
                         ),
+
                         IconButton(
-                          icon: const Icon(Icons.delete_outline),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                          ),
                           onPressed: () {
                             deleteCategory(index);
                           },
@@ -202,9 +262,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
+
+      floatingActionButton:
+          FloatingActionButton(
         onPressed: addCategory,
-        child: const Icon(Icons.add),
+        child: const Icon(
+          Icons.add,
+        ),
       ),
     );
   }
