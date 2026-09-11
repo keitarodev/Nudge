@@ -1,5 +1,6 @@
 import '../models/nudge.dart';
 import '../models/nudge_category.dart';
+import '../models/nudge_history.dart';
 import '../models/place.dart';
 import '../models/sharing_preference.dart';
 
@@ -75,4 +76,7 @@ class AppData {
 
   // Sharing Preferences
   static List<SharingPreference> sharingPreferences = [];
+
+  // Nudge History
+  static List<NudgeHistory> history = [];
 }

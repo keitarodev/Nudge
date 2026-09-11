@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/app_data.dart';
 import '../../models/nudge.dart';
 import '../../models/nudge_category.dart';
 import '../../models/place.dart';
@@ -163,7 +164,7 @@ class _EditNudgeBottomSheetState
 
                 for (final trigger in NudgeTrigger.values)
                   ListTile(
-                    leading: Icon(
+                    leading: const Icon(
                       Icons.notifications_outlined,
                     ),
                     title: Text(
@@ -215,6 +216,64 @@ class _EditNudgeBottomSheetState
       context,
       updatedNudge,
     );
+  }
+
+  // Delete Nudge
+  Future<void> deleteNudge() async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            'Delete Nudge?',
+          ),
+          content: const Text(
+            'Are you sure you want to delete this nudge?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  false,
+                );
+              },
+              child: const Text(
+                'Cancel',
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(
+                  context,
+                  true,
+                );
+              },
+              child: Text(
+                'Delete',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.error,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      AppData.nudges.removeWhere(
+        (item) => item.id == widget.nudge.id,
+      );
+
+      if (mounted) {
+        Navigator.pop(
+          context,
+          true,
+        );
+      }
+    }
   }
 
   @override
@@ -391,9 +450,7 @@ class _EditNudgeBottomSheetState
               SizedBox(
                 width: double.infinity,
                 child: TextButton(
-                  onPressed: () {
-                    // Delete will be added later
-                  },
+                  onPressed: deleteNudge,
                   child: Text(
                     'Delete Nudge',
                     style: TextStyle(

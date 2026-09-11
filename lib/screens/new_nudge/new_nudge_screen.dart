@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../data/app_data.dart';
 import '../../models/nudge.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
@@ -32,7 +33,9 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
   void _showMessage(String message) {
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    ).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   bool _validateCurrentStep() {
@@ -49,7 +52,7 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
     }
 
     if (currentStep == 2 && placeName.trim().isEmpty) {
-      _showMessage('Please enter a place.');
+      _showMessage('Please select a place.');
       return false;
     }
 
@@ -61,7 +64,7 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title.trim(),
       categoryId: selectedCategory!,
-      placeId: placeName.trim(),
+      placeId: placeName,
       trigger: selectedTrigger,
       radius: selectedRadius.toInt(),
       status: 'active',
@@ -80,8 +83,13 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
         currentStep++;
       });
     } else {
+      final nudge = _createNudge();
+
+      // Save the new Nudge to the shared AppData.
+      AppData.nudges.add(nudge);
+
       setState(() {
-        savedNudge = _createNudge();
+        savedNudge = nudge;
       });
     }
   }
@@ -111,6 +119,7 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
       return WhatScreen(
         title: title,
         selectedCategory: selectedCategory,
+        categories: AppData.categories,
         onTitleChanged: (value) {
           setState(() {
             title = value;
@@ -139,6 +148,7 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
       return ChoosePlaceScreen(
         placeName: placeName,
         selectedRadius: selectedRadius,
+        places: AppData.places,
         onPlaceChanged: (value) {
           setState(() {
             placeName = value;
@@ -152,7 +162,9 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
       );
     }
 
-    return ReviewNudgeScreen(nudge: _createNudge());
+    return ReviewNudgeScreen(
+      nudge: _createNudge(),
+    );
   }
 
   @override
@@ -188,7 +200,10 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Create Nudge', style: textTheme.displayLarge),
+                    Text(
+                      'Create Nudge',
+                      style: textTheme.displayLarge,
+                    ),
                     const SizedBox(height: AppSpacing.normal),
                     Row(
                       children: [
@@ -214,14 +229,20 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
             ),
           ),
 
-          Expanded(child: _buildCurrentStep()),
+          Expanded(
+            child: _buildCurrentStep(),
+          ),
 
           Container(
-            padding: const EdgeInsets.all(AppSpacing.standard),
+            padding: const EdgeInsets.all(
+              AppSpacing.standard,
+            ),
             decoration: BoxDecoration(
               color: colorScheme.surface,
               border: Border(
-                top: BorderSide(color: colorScheme.outlineVariant),
+                top: BorderSide(
+                  color: colorScheme.outlineVariant,
+                ),
               ),
             ),
             child: SafeArea(
@@ -246,7 +267,10 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
                       ),
                     ),
 
-                  if (currentStep > 0) const SizedBox(width: AppSpacing.normal),
+                  if (currentStep > 0)
+                    const SizedBox(
+                      width: AppSpacing.normal,
+                    ),
 
                   Expanded(
                     child: ElevatedButton(
@@ -263,7 +287,11 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
                           ),
                         ),
                       ),
-                      child: Text(currentStep == 3 ? 'Save Nudge' : 'Continue'),
+                      child: Text(
+                        currentStep == 3
+                            ? 'Save Nudge'
+                            : 'Continue',
+                      ),
                     ),
                   ),
                 ],
