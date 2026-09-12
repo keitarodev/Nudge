@@ -1,5 +1,6 @@
 class NotificationItem {
   final String id;
+  final String nudgeId;
   final String title;
   final String message;
   final String place;
@@ -8,6 +9,7 @@ class NotificationItem {
 
   const NotificationItem({
     required this.id,
+    required this.nudgeId,
     required this.title,
     required this.message,
     required this.place,

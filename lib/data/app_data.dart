@@ -8,37 +8,20 @@ import '../models/notification_item.dart';
 class AppData {
   // Categories
   static List<NudgeCategory> categories = [
-    const NudgeCategory(
-      id: 'food',
-      name: 'Food',
-    ),
-    const NudgeCategory(
-      id: 'study',
-      name: 'Study',
-    ),
-    const NudgeCategory(
-      id: 'work',
-      name: 'Work',
-    ),
+    const NudgeCategory(id: 'food', name: 'Food'),
+    const NudgeCategory(id: 'study', name: 'Study'),
+    const NudgeCategory(id: 'work', name: 'Work'),
   ];
 
   // Saved Places
   static List<SavedPlace> places = [
-    const SavedPlace(
-      id: 'market',
-      name: 'Market',
-      address: 'Local Market',
-    ),
+    const SavedPlace(id: 'market', name: 'Market', address: 'Local Market'),
     const SavedPlace(
       id: 'university',
       name: 'University',
       address: 'University',
     ),
-    const SavedPlace(
-      id: 'office',
-      name: 'Office',
-      address: 'Office',
-    ),
+    const SavedPlace(id: 'office', name: 'Office', address: 'Office'),
   ];
 
   // Nudges
@@ -82,45 +65,32 @@ class AppData {
   static List<NudgeHistory> history = [];
 
   static List<NotificationItem> notifications = [
-  NotificationItem(
-    id: 'notification_01',
-    title: 'Buy medicine',
-    message: 'Don’t forget to buy medicine',
-    place: 'Near Pharmacy',
-    createdAt: DateTime(2026, 9, 11, 18, 30),
-    isRead: false,
-  ),
-  NotificationItem(
-    id: 'notification_02',
-    title: 'Buy groceries',
-    message: 'Remember to buy groceries',
-    place: 'Near Supermarket',
-    createdAt: DateTime(2026, 9, 11, 16, 15),
-    isRead: false,
-  ),
-  NotificationItem(
-    id: 'notification_03',
-    title: 'Submit document',
-    message: 'Don’t forget your document',
-    place: 'Near University',
-    createdAt: DateTime(2026, 9, 10, 9, 20),
-    isRead: true,
-  ),
-  NotificationItem(
-    id: 'notification_04',
-    title: 'Gym session',
-    message: 'Your gym reminder was triggered',
-    place: 'Near FitZone',
-    createdAt: DateTime(2026, 9, 8, 7, 30),
-    isRead: true,
-  ),
-  NotificationItem(
-    id: 'notification_05',
-    title: 'Coffee with Dara',
-    message: 'Remember your coffee plan',
-    place: 'Near Brown Coffee',
-    createdAt: DateTime(2026, 9, 1, 11, 30),
-    isRead: false,
-  ),
-];
+    NotificationItem(
+      id: 'notification_01',
+      nudgeId: '1',
+      title: 'Buy chicken',
+      message: 'Your nudge was triggered',
+      place: 'Near Market',
+      createdAt: DateTime(2026, 9, 11, 18, 30),
+      isRead: false,
+    ),
+    NotificationItem(
+      id: 'notification_02',
+      nudgeId: '2',
+      title: 'Submit document',
+      message: 'Your nudge was triggered',
+      place: 'Near University',
+      createdAt: DateTime(2026, 9, 11, 16, 15),
+      isRead: false,
+    ),
+    NotificationItem(
+      id: 'notification_03',
+      nudgeId: '3',
+      title: 'Go to work',
+      message: 'Your nudge was triggered',
+      place: 'Near Office',
+      createdAt: DateTime(2026, 9, 10, 9, 20),
+      isRead: true,
+    ),
+  ];
 }

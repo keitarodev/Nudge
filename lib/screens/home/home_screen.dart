@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:nudge/screens/notifications/notifications_screen.dart';
 
+import '../../models/notification_item.dart';
 import '../../data/app_data.dart';
 import '../../models/nudge.dart';
 import '../../models/nudge_history.dart';
@@ -51,17 +52,42 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Complete Nudge
+  String _getPlaceName(String placeId) {
+    for (final place in AppData.places) {
+      if (place.id == placeId) {
+        return place.name;
+      }
+    }
+
+    return '';
+  }
+
+ // Complete Nudge
   void completeNudge(Nudge nudge) {
+    final now = DateTime.now();
+
     final historyItem = NudgeHistory(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: now.millisecondsSinceEpoch.toString(),
       nudgeId: nudge.id,
       status: 'completed',
-      triggeredAt: DateTime.now(),
+      triggeredAt: now,
     );
 
     // Add completed Nudge to history
     AppData.history.add(historyItem);
+
+    // Add notification for the completed Nudge
+    AppData.notifications.add(
+      NotificationItem(
+        id: '${now.millisecondsSinceEpoch}_notification',
+        nudgeId: nudge.id,
+        title: nudge.title,
+        message: 'Your nudge was triggered',
+        place: _getPlaceName(nudge.placeId),
+        createdAt: now,
+        isRead: false,
+      ),
+    );
 
     // Change Nudge status to completed
     setState(() {
@@ -79,14 +105,12 @@ class _HomeScreenState extends State<HomeScreen> {
           radius: nudge.radius,
           status: 'completed',
           createdAt: nudge.createdAt,
-          lastTriggeredAt: DateTime.now(),
+          lastTriggeredAt: now,
         );
       }
     });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Nudge completed'),
       ),
