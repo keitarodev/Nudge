@@ -252,7 +252,31 @@ class _NotificationsScreenState
       },
     );
   }
+  void _markNotificationAsRead(NotificationItem item) {
+  if (item.isRead) {
+    return;
+  }
 
+  final index = AppData.notifications.indexWhere(
+    (notification) => notification.id == item.id,
+  );
+
+  if (index == -1) {
+    return;
+  }
+
+  AppData.notifications[index] = NotificationItem(
+    id: item.id,
+    nudgeId: item.nudgeId,
+    title: item.title,
+    message: item.message,
+    place: item.place,
+    createdAt: item.createdAt,
+    isRead: true,
+  );
+
+  setState(() {});
+}
   Widget _buildNotificationCard(
     BuildContext context,
     NotificationItem item,
@@ -327,6 +351,13 @@ class _NotificationsScreenState
         _deleteNotification(item);
       },
 
+     child: InkWell(
+      borderRadius: BorderRadius.circular(
+        AppSizes.radiusLarge,
+      ),
+      onTap: () {
+        _markNotificationAsRead(item);
+      },
       child: Container(
         padding: const EdgeInsets.all(
           AppSpacing.normal,
@@ -454,6 +485,7 @@ class _NotificationsScreenState
             ),
           ],
         ),
+      ),
       ),
     );
   }
