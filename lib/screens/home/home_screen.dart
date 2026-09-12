@@ -28,7 +28,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // null means all categories.
   String? _selectedCategory;
 
-  // Edit Nudge
+  // ==========================================
+  // EDIT NUDGE
+  // ==========================================
   Future<void> editNudge(Nudge nudge) async {
     final updatedNudge = await showModalBottomSheet<Nudge>(
       context: context,
@@ -56,7 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Complete Nudge
+  // ==========================================
+  // COMPLETE NUDGE
+  // ==========================================
   void completeNudge(Nudge nudge) {
     setState(() {
       AppData.nudges.removeWhere(
@@ -71,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Select trigger from the summary card.
+  // ==========================================
+  // SELECT TRIGGER
+  // ==========================================
   void _selectTrigger(NudgeTrigger trigger) {
     setState(() {
       // Tap the same trigger again to show all triggers.
@@ -83,15 +89,18 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Select category from the category chips.
+  // ==========================================
+  // SELECT CATEGORY
+  // ==========================================
   void _selectCategory(String? categoryId) {
     setState(() {
       _selectedCategory = categoryId;
     });
   }
 
-  // Get the nudges based on the selected trigger
-  // and selected category.
+  // ==========================================
+  // GET FILTERED NUDGES
+  // ==========================================
   List<Nudge> _getFilteredNudges() {
     List<Nudge> filtered = AppData.nudges.where((nudge) {
       // Trigger filter
@@ -112,7 +121,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return filtered;
   }
 
-  // Get category name
+  // ==========================================
+  // GET CATEGORY NAME
+  // ==========================================
   String _getCategoryName(String categoryId) {
     final category = AppData.categories.firstWhere(
       (item) => item.id == categoryId,
@@ -125,7 +136,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Trigger counts
+    // ==========================================
+    // TRIGGER COUNTS
+    // ==========================================
     final arriveCount = AppData.nudges
         .where(
           (nudge) =>
@@ -147,42 +160,59 @@ class _HomeScreenState extends State<HomeScreen> {
         )
         .length;
 
-    // Filtered nudges
+    // ==========================================
+    // FILTERED NUDGES
+    // ==========================================
     final filteredNudges = _getFilteredNudges();
 
     return Scaffold(
       backgroundColor:
           theme.scaffoldBackgroundColor,
 
-      // Header
+      // ==========================================
+      // HEADER
+      // ==========================================
       appBar: AppBar(
         backgroundColor:
             theme.scaffoldBackgroundColor,
+
         elevation: 0,
+
         scrolledUnderElevation: 0,
+
         centerTitle: false,
-        titleSpacing: AppSpacing.large,
+
+        titleSpacing:
+            AppSpacing.large,
 
         // Logo + name
         title: Transform.translate(
           offset: const Offset(0, -2),
+
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize:
+                MainAxisSize.min,
+
             children: [
               Image.asset(
                 'assets/images/nudge_logo-01.png',
+
                 width: 40,
                 height: 40,
+
                 fit: BoxFit.contain,
               ),
 
               const SizedBox(
-                width: AppSpacing.small,
+                width:
+                    AppSpacing.small,
               ),
 
               Text(
                 'nudge',
-                style: AppTextStyles.heading,
+
+                style:
+                    AppTextStyles.heading,
               ),
             ],
           ),
@@ -190,7 +220,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Header buttons
         actions: [
-          // History
+          // ==========================================
+          // HISTORY
+          // ==========================================
           IconButton(
             onPressed: () {
               Navigator.push(
@@ -201,16 +233,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               );
             },
+
             icon: const Icon(
               Icons.history_outlined,
             ),
           ),
 
-          // Notifications
+          // ==========================================
+          // NOTIFICATIONS
+          // ==========================================
           Padding(
             padding: const EdgeInsets.only(
-              right: AppSpacing.large,
+              right:
+                  AppSpacing.large,
             ),
+
             child: Stack(
               children: [
                 IconButton(
@@ -223,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
+
                   icon: const Icon(
                     Icons.notifications_none_outlined,
                   ),
@@ -232,13 +270,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 Positioned(
                   right: 10,
                   top: 10,
+
                   child: Container(
                     width: 8,
                     height: 8,
-                    decoration: BoxDecoration(
-                      color:
-                          theme.colorScheme.error,
-                      shape: BoxShape.circle,
+
+                    decoration:
+                        BoxDecoration(
+                      color: theme
+                          .colorScheme
+                          .error,
+
+                      shape:
+                          BoxShape.circle,
                     ),
                   ),
                 ),
@@ -248,9 +292,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
-      // Main content
+      // ==========================================
+      // MAIN CONTENT
+      // ==========================================
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(
+        padding:
+            const EdgeInsets.fromLTRB(
           AppSpacing.large,
           AppSpacing.normal,
           AppSpacing.large,
@@ -262,11 +309,13 @@ class _HomeScreenState extends State<HomeScreen> {
           // ACTIVE NUDGES SUMMARY
           // ==========================================
           Container(
-            padding: const EdgeInsets.all(
+            padding:
+                const EdgeInsets.all(
               AppSpacing.large,
             ),
 
-            decoration: BoxDecoration(
+            decoration:
+                BoxDecoration(
               color:
                   theme.colorScheme.primary,
 
@@ -286,14 +335,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   '${AppData.nudges.length} Active Nudges',
 
                   style: const TextStyle(
-                    color: AppColors.dark,
+                    color:
+                        AppColors.dark,
+
                     fontSize: 28,
-                    fontWeight: FontWeight.w800,
+
+                    fontWeight:
+                        FontWeight.w800,
                   ),
                 ),
 
                 const SizedBox(
-                  height: AppSpacing.small,
+                  height:
+                      AppSpacing.small,
                 ),
 
                 // Description
@@ -301,18 +355,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   'Your location reminders are active',
 
                   style: TextStyle(
-                    color: AppColors.dark.withValues(
+                    color:
+                        AppColors.dark
+                            .withValues(
                       alpha: 0.7,
                     ),
+
                     fontSize: 14,
                   ),
                 ),
 
                 const SizedBox(
-                  height: AppSpacing.large,
+                  height:
+                      AppSpacing.large,
                 ),
 
-                // Trigger statistics
+                // ==========================================
+                // TRIGGER STATISTICS
+                // ==========================================
                 Row(
                   mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
@@ -323,10 +383,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     // ARRIVE
                     Expanded(
-                      child: _buildSummaryStat(
+                      child:
+                          _buildSummaryStat(
                         value:
                             arriveCount.toString(),
-                        label: 'ARRIVE',
+
+                        label:
+                            'ARRIVE',
+
                         trigger:
                             NudgeTrigger.arrive,
                       ),
@@ -335,18 +399,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark
-                          .withValues(
+
+                      color:
+                          AppColors.dark
+                              .withValues(
                         alpha: 0.18,
                       ),
                     ),
 
                     // LEAVE
                     Expanded(
-                      child: _buildSummaryStat(
+                      child:
+                          _buildSummaryStat(
                         value:
                             leaveCount.toString(),
-                        label: 'LEAVE',
+
+                        label:
+                            'LEAVE',
+
                         trigger:
                             NudgeTrigger.leave,
                       ),
@@ -355,18 +425,24 @@ class _HomeScreenState extends State<HomeScreen> {
                     Container(
                       width: 1,
                       height: 32,
-                      color: AppColors.dark
-                          .withValues(
+
+                      color:
+                          AppColors.dark
+                              .withValues(
                         alpha: 0.18,
                       ),
                     ),
 
                     // NEARBY
                     Expanded(
-                      child: _buildSummaryStat(
+                      child:
+                          _buildSummaryStat(
                         value:
                             nearbyCount.toString(),
-                        label: 'NEARBY',
+
+                        label:
+                            'NEARBY',
+
                         trigger:
                             NudgeTrigger.nearby,
                       ),
@@ -378,59 +454,65 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           const SizedBox(
-            height: AppSpacing.large,
-          ),
-
-          // ==========================================
-          // TODAY
-          // ==========================================
-          Text(
-            'TODAY',
-            style:
-                AppTextStyles.sectionHeading,
-          ),
-
-          const SizedBox(
-            height: AppSpacing.normal,
+            height:
+                AppSpacing.large,
           ),
 
           // ==========================================
           // CATEGORY CHIPS
           // ==========================================
           SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+            scrollDirection:
+                Axis.horizontal,
 
             child: Row(
               children: [
                 // ALL
                 _buildCategoryChip(
                   context: context,
+
                   label: 'All',
+
                   categoryId: null,
                 ),
 
                 const SizedBox(
-                  width: AppSpacing.small,
+                  width:
+                      AppSpacing.small,
                 ),
 
-                // Categories
+                // CATEGORIES
                 for (
                   int i = 0;
-                  i < AppData.categories.length;
+                  i <
+                      AppData
+                          .categories
+                          .length;
                   i++
                 ) ...[
                   _buildCategoryChip(
-                    context: context,
+                    context:
+                        context,
+
                     label:
-                        AppData.categories[i].name,
+                        AppData
+                            .categories[i]
+                            .name,
+
                     categoryId:
-                        AppData.categories[i].id,
+                        AppData
+                            .categories[i]
+                            .id,
                   ),
 
                   if (i !=
-                      AppData.categories.length - 1)
+                      AppData
+                              .categories
+                              .length -
+                          1)
                     const SizedBox(
-                      width: AppSpacing.small,
+                      width:
+                          AppSpacing.small,
                     ),
                 ],
               ],
@@ -438,7 +520,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           const SizedBox(
-            height: AppSpacing.normal,
+            height:
+                AppSpacing.normal,
           ),
 
           // ==========================================
@@ -447,26 +530,34 @@ class _HomeScreenState extends State<HomeScreen> {
           if (_selectedTrigger != null ||
               _selectedCategory != null)
             Padding(
-              padding: const EdgeInsets.only(
-                bottom: AppSpacing.normal,
+              padding:
+                  const EdgeInsets.only(
+                bottom:
+                    AppSpacing.normal,
               ),
 
               child: Row(
                 children: [
                   Icon(
                     Icons.filter_alt_outlined,
+
                     size: 18,
+
                     color:
-                        theme.colorScheme.primary,
+                        theme
+                            .colorScheme
+                            .primary,
                   ),
 
                   const SizedBox(
-                    width: AppSpacing.small,
+                    width:
+                        AppSpacing.small,
                   ),
 
                   Expanded(
                     child: Text(
                       _getFilterText(),
+
                       style: theme
                           .textTheme
                           .bodySmall
@@ -474,6 +565,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: theme
                             .colorScheme
                             .onSurfaceVariant,
+
                         fontWeight:
                             FontWeight.w600,
                       ),
@@ -487,13 +579,16 @@ class _HomeScreenState extends State<HomeScreen> {
           // EMPTY STATE
           // ==========================================
           if (filteredNudges.isEmpty)
-            _buildEmptyNudgeState(context),
+            _buildEmptyNudgeState(
+              context,
+            ),
 
           // ==========================================
           // NUDGE LIST
           // ==========================================
           for (
-            final nudge in filteredNudges
+            final nudge
+                in filteredNudges
           )
             _buildNudgeCard(
               context,
@@ -513,11 +608,14 @@ class _HomeScreenState extends State<HomeScreen> {
     required NudgeTrigger trigger,
   }) {
     final bool isSelected =
-        _selectedTrigger == trigger;
+        _selectedTrigger ==
+            trigger;
 
     return InkWell(
       onTap: () {
-        _selectTrigger(trigger);
+        _selectTrigger(
+          trigger,
+        );
       },
 
       borderRadius:
@@ -526,14 +624,20 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          vertical: AppSpacing.small,
-          horizontal: AppSpacing.small,
+        padding:
+            const EdgeInsets.symmetric(
+          vertical:
+              AppSpacing.small,
+
+          horizontal:
+              AppSpacing.small,
         ),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color: isSelected
-              ? AppColors.dark.withValues(
+              ? AppColors.dark
+                  .withValues(
                   alpha: 0.10,
                 )
               : Colors.transparent,
@@ -560,8 +664,11 @@ class _HomeScreenState extends State<HomeScreen> {
               value,
 
               style: const TextStyle(
-                color: AppColors.dark,
+                color:
+                    AppColors.dark,
+
                 fontSize: 26,
+
                 fontWeight:
                     FontWeight.w800,
               ),
@@ -577,13 +684,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 label,
 
                 style: TextStyle(
-                  color: AppColors.dark
-                      .withValues(
+                  color:
+                      AppColors.dark
+                          .withValues(
                     alpha: 0.65,
                   ),
+
                   fontSize: 11,
+
                   fontWeight:
                       FontWeight.w800,
+
                   letterSpacing: 1.0,
                 ),
               ),
@@ -606,11 +717,14 @@ class _HomeScreenState extends State<HomeScreen> {
         Theme.of(context);
 
     final bool isSelected =
-        _selectedCategory == categoryId;
+        _selectedCategory ==
+            categoryId;
 
     return GestureDetector(
       onTap: () {
-        _selectCategory(categoryId);
+        _selectCategory(
+          categoryId,
+        );
       },
 
       child: Container(
@@ -618,21 +732,28 @@ class _HomeScreenState extends State<HomeScreen> {
             const EdgeInsets.symmetric(
           horizontal:
               AppSpacing.normal,
+
           vertical:
               AppSpacing.small,
         ),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color: isSelected
-              ? theme.colorScheme.primary
-              : theme.colorScheme.surface,
+              ? theme
+                  .colorScheme
+                  .primary
+              : theme
+                  .colorScheme
+                  .surface,
 
           borderRadius:
               BorderRadius.circular(
             AppSizes.radiusSmall,
           ),
 
-          border: Border.all(
+          border:
+              Border.all(
             color: isSelected
                 ? theme
                     .colorScheme
@@ -716,31 +837,39 @@ class _HomeScreenState extends State<HomeScreen> {
         _selectedCategory != null) {
       message =
           'No ${_getCategoryName(_selectedCategory!)} '
-          'nudges for ${_selectedTrigger!.label.toLowerCase()}';
+          'nudges for '
+          '${_selectedTrigger!.label.toLowerCase()}';
     } else if (_selectedTrigger != null) {
       message =
-          'No nudges for ${_selectedTrigger!.label.toLowerCase()}';
+          'No nudges for '
+          '${_selectedTrigger!.label.toLowerCase()}';
     } else if (_selectedCategory != null) {
       message =
           'No ${_getCategoryName(_selectedCategory!)} nudges';
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        vertical: AppSpacing.extraLarge,
+      padding:
+          const EdgeInsets.symmetric(
+        vertical:
+            AppSpacing.extraLarge,
       ),
 
       child: Column(
         children: [
           Icon(
-            Icons.notifications_none_rounded,
+            Icons
+                .notifications_none_rounded,
+
             size: 48,
+
             color:
                 theme.colorScheme.outline,
           ),
 
           const SizedBox(
-            height: AppSpacing.normal,
+            height:
+                AppSpacing.normal,
           ),
 
           Text(
@@ -775,14 +904,16 @@ class _HomeScreenState extends State<HomeScreen> {
     final category =
         AppData.categories.firstWhere(
       (item) =>
-          item.id == nudge.categoryId,
+          item.id ==
+          nudge.categoryId,
     );
 
     // Find place
     final place =
         AppData.places.firstWhere(
       (item) =>
-          item.id == nudge.placeId,
+          item.id ==
+          nudge.placeId,
     );
 
     return Dismissible(
@@ -793,18 +924,22 @@ class _HomeScreenState extends State<HomeScreen> {
       direction:
           DismissDirection.endToStart,
 
-      // Background
+      // Complete background
       background: Container(
-        margin: const EdgeInsets.only(
-          bottom: AppSpacing.standard,
+        margin:
+            const EdgeInsets.only(
+          bottom:
+              AppSpacing.standard,
         ),
 
         padding:
             const EdgeInsets.only(
-          right: AppSpacing.large,
+          right:
+              AppSpacing.large,
         ),
 
-        decoration: BoxDecoration(
+        decoration:
+            BoxDecoration(
           color:
               theme.colorScheme.primary,
 
@@ -824,7 +959,9 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               Icons.check_rounded,
-              color: AppColors.dark,
+
+              color:
+                  AppColors.dark,
             ),
 
             const SizedBox(
@@ -834,9 +971,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
             Text(
               'Complete',
+
               style: TextStyle(
                 color:
                     AppColors.dark,
+
                 fontWeight:
                     FontWeight.w700,
               ),
@@ -846,14 +985,19 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // Complete Nudge
-      onDismissed: (direction) {
-        completeNudge(nudge);
+      onDismissed:
+          (direction) {
+        completeNudge(
+          nudge,
+        );
       },
 
       // Card
       child: Card(
-        margin: const EdgeInsets.only(
-          bottom: AppSpacing.standard,
+        margin:
+            const EdgeInsets.only(
+          bottom:
+              AppSpacing.standard,
         ),
 
         elevation: 0,
@@ -879,7 +1023,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           onTap: () {
-            editNudge(nudge);
+            editNudge(
+              nudge,
+            );
           },
 
           child: Padding(
@@ -887,6 +1033,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const EdgeInsets.symmetric(
               horizontal:
                   AppSpacing.standard,
+
               vertical:
                   AppSpacing.standard,
             ),
@@ -896,7 +1043,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   CrossAxisAlignment.start,
 
               children: [
-                // Title + category
+                // ==========================================
+                // TITLE + CATEGORY
+                // ==========================================
                 Row(
                   crossAxisAlignment:
                       CrossAxisAlignment.center,
@@ -945,7 +1094,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       AppSpacing.small,
                 ),
 
-                // Place + trigger + radius
+                // ==========================================
+                // PLACE + TRIGGER + RADIUS
+                // ==========================================
                 Text(
                   '${place.name} · '
                   '${nudge.trigger.label} · '
