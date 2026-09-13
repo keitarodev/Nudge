@@ -18,6 +18,9 @@ class NotificationsScreen extends StatefulWidget {
 
 class _NotificationsScreenState
     extends State<NotificationsScreen> {
+    final GlobalKey<ScaffoldMessengerState>
+    _scaffoldMessengerKey =
+        GlobalKey<ScaffoldMessengerState>();
   String _selectedStatus = 'All';
   String _selectedTime = 'All';
 
@@ -198,8 +201,8 @@ class _NotificationsScreenState
       );
     });
 
-    ScaffoldMessenger.of(context)
-        .clearSnackBars();
+    _scaffoldMessengerKey.currentState
+    ?.clearSnackBars();
 
     final bool isDarkMode =
         Theme.of(context).brightness ==
@@ -212,7 +215,7 @@ class _NotificationsScreenState
             .colorScheme
             .primary;
 
-    ScaffoldMessenger.of(context).showSnackBar(
+    _scaffoldMessengerKey.currentState?.showSnackBar(
       SnackBar(
         content: const Text(
           'Notification deleted',
@@ -233,8 +236,8 @@ class _NotificationsScreenState
               AppData.notifications.add(item);
             });
 
-            ScaffoldMessenger.of(context)
-                .hideCurrentSnackBar();
+            _scaffoldMessengerKey.currentState
+              ?.hideCurrentSnackBar();
           },
         ),
       ),
@@ -246,8 +249,8 @@ class _NotificationsScreenState
       const Duration(seconds: 4),
       () {
         if (mounted) {
-          ScaffoldMessenger.of(context)
-              .hideCurrentSnackBar();
+          _scaffoldMessengerKey.currentState
+            ?.hideCurrentSnackBar();
         }
       },
     );
@@ -594,7 +597,9 @@ class _NotificationsScreenState
       filteredNotifications,
     );
 
-    return Scaffold(
+    return ScaffoldMessenger(
+      key: _scaffoldMessengerKey,
+      child: Scaffold(
       backgroundColor:
           theme.scaffoldBackgroundColor,
 
@@ -1060,6 +1065,7 @@ class _NotificationsScreenState
             ),
           ],
         ),
+      ),
       ),
     );
   }
