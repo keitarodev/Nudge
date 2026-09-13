@@ -3,6 +3,8 @@ import 'package:nudge/screens/notifications/notifications_screen.dart';
 
 import '../../data/app_data.dart';
 import '../../models/nudge.dart';
+import '../../models/notification_item.dart';
+import '../../models/nudge_history.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
@@ -62,17 +64,70 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  String _getPlaceName(String placeId) {
+    for (final place in AppData.places) {
+      if (place.id == placeId) {
+        return place.name;
+      }
+    }
+
+    return '';
+  }
+
   // ==========================================
   // COMPLETE NUDGE
   // ==========================================
   void completeNudge(Nudge nudge) {
+    final now = DateTime.now();
+
+    final historyItem = NudgeHistory(
+      id: now.millisecondsSinceEpoch.toString(),
+      nudgeId: nudge.id,
+      status: 'completed',
+      triggeredAt: now,
+    );
+
+    AppData.history.add(historyItem);
+
+    AppData.notifications.add(
+      NotificationItem(
+        id: '${now.millisecondsSinceEpoch}_notification',
+        nudgeId: nudge.id,
+        title: nudge.title,
+        message: 'Your nudge was triggered',
+        place: _getPlaceName(nudge.placeId),
+        createdAt: now,
+        isRead: false,
+      ),
+    );
+
     setState(() {
-      AppData.nudges.removeWhere((item) => item.id == nudge.id);
+      final index = AppData.nudges.indexWhere(
+        (item) => item.id == nudge.id,
+      );
+
+      if (index != -1) {
+        AppData.nudges[index] = Nudge(
+          id: nudge.id,
+          title: nudge.title,
+          categoryId: nudge.categoryId,
+          placeId: nudge.placeId,
+          trigger: nudge.trigger,
+          radius: nudge.radius,
+          status: 'completed',
+          createdAt: nudge.createdAt,
+          lastTriggeredAt: now,
+        );
+      }
     });
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Nudge completed')));
+    ).showSnackBar(
+      const SnackBar(
+        content: Text('Nudge completed'),
+      ),
+    );
   }
 
   // ==========================================
@@ -103,6 +158,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // ==========================================
   List<Nudge> _getFilteredNudges() {
     List<Nudge> filtered = AppData.nudges.where((nudge) {
+      if (nudge.status != 'active') {
+        return false;
+      }
       // Trigger filter
       if (_selectedTrigger != null && nudge.trigger != _selectedTrigger) {
         return false;
