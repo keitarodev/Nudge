@@ -4,6 +4,7 @@ import '../models/nudge_history.dart';
 import '../models/place.dart';
 import '../models/sharing_preference.dart';
 import '../models/notification_item.dart';
+import '../models/nudge_radius.dart';
 
 class AppData {
   // Categories
@@ -22,6 +23,14 @@ class AppData {
       address: 'University',
     ),
     const SavedPlace(id: 'office', name: 'Office', address: 'Office'),
+  ];
+
+  // Radius Settings
+  static List<NudgeRadius> radii = [
+    const NudgeRadius(id: '250', meters: 250),
+    const NudgeRadius(id: '500', meters: 500),
+    const NudgeRadius(id: '750', meters: 750),
+    const NudgeRadius(id: '1000', meters: 1000),
   ];
 
   // Nudges
