@@ -7,6 +7,7 @@ import 'categories_screen.dart';
 import 'about_nudge_screen.dart';
 import '../../theme/app_colors.dart';
 import 'saved_location_screen.dart';
+import 'radius_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final ThemeMode themeMode;
@@ -159,6 +160,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const SavedLocationScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                Divider(
+                  height: 1,
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                      : AppColors.outlineLight,
+                ),
+
+                ListTile(
+                  leading: Icon(Icons.radar_outlined, size: AppSizes.icon),
+                  title: const Text("Radius"),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 12),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const RadiusScreen(),
                       ),
                     );
                   },
