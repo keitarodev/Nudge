@@ -30,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // null means all categories.
   String? _selectedCategory;
 
+  // Search query
+  String _searchQuery = '';
+
   // ==========================================
   // EDIT NUDGE
   // ==========================================
@@ -64,6 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // ==========================================
+  // GET PLACE NAME
+  // ==========================================
   String _getPlaceName(String placeId) {
     for (final place in AppData.places) {
       if (place.id == placeId) {
@@ -102,9 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     setState(() {
-      final index = AppData.nudges.indexWhere(
-        (item) => item.id == nudge.id,
-      );
+      final index = AppData.nudges.indexWhere((item) => item.id == nudge.id);
 
       if (index != -1) {
         AppData.nudges[index] = Nudge(
@@ -123,17 +127,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(
-      const SnackBar(
-        content: Text('Nudge completed'),
-      ),
-    );
+    ).showSnackBar(const SnackBar(content: Text('Nudge completed')));
   }
 
   // ==========================================
   // SELECT TRIGGER
   // ==========================================
   void _selectTrigger(NudgeTrigger trigger) {
+    FocusScope.of(context).unfocus();
+
     setState(() {
       // Tap the same trigger again to show all triggers.
       if (_selectedTrigger == trigger) {
@@ -148,8 +150,19 @@ class _HomeScreenState extends State<HomeScreen> {
   // SELECT CATEGORY
   // ==========================================
   void _selectCategory(String? categoryId) {
+    FocusScope.of(context).unfocus();
+
     setState(() {
       _selectedCategory = categoryId;
+    });
+  }
+
+  // ==========================================
+  // SEARCH NUDGES
+  // ==========================================
+  void _searchNudges(String value) {
+    setState(() {
+      _searchQuery = value.trim().toLowerCase();
     });
   }
 
@@ -158,9 +171,11 @@ class _HomeScreenState extends State<HomeScreen> {
   // ==========================================
   List<Nudge> _getFilteredNudges() {
     List<Nudge> filtered = AppData.nudges.where((nudge) {
+      // Only show active nudges
       if (nudge.status != 'active') {
         return false;
       }
+
       // Trigger filter
       if (_selectedTrigger != null && nudge.trigger != _selectedTrigger) {
         return false;
@@ -169,6 +184,27 @@ class _HomeScreenState extends State<HomeScreen> {
       // Category filter
       if (_selectedCategory != null && nudge.categoryId != _selectedCategory) {
         return false;
+      }
+
+      // Search filter
+      if (_searchQuery.isNotEmpty) {
+        final title = nudge.title.toLowerCase();
+
+        final categoryName = _getCategoryName(nudge.categoryId).toLowerCase();
+
+        final placeName = _getPlaceName(nudge.placeId).toLowerCase();
+
+        final triggerName = nudge.trigger.label.toLowerCase();
+
+        final matchesSearch =
+            title.contains(_searchQuery) ||
+            categoryName.contains(_searchQuery) ||
+            placeName.contains(_searchQuery) ||
+            triggerName.contains(_searchQuery);
+
+        if (!matchesSearch) {
+          return false;
+        }
       }
 
       return true;
@@ -220,29 +256,21 @@ class _HomeScreenState extends State<HomeScreen> {
       // ==========================================
       appBar: AppBar(
         backgroundColor: theme.scaffoldBackgroundColor,
-
         elevation: 0,
-
         scrolledUnderElevation: 0,
-
         centerTitle: false,
-
         titleSpacing: AppSpacing.large,
 
         // Logo + name
         title: Transform.translate(
           offset: const Offset(0, -2),
-
           child: Row(
             mainAxisSize: MainAxisSize.min,
-
             children: [
               Image.asset(
                 'assets/images/nudge_logo-01.png',
-
                 width: 40,
                 height: 40,
-
                 fit: BoxFit.contain,
               ),
 
@@ -260,12 +288,13 @@ class _HomeScreenState extends State<HomeScreen> {
           // ==========================================
           IconButton(
             onPressed: () {
+              FocusScope.of(context).unfocus();
+
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const HistoryScreen()),
               );
             },
-
             icon: const Icon(Icons.history_outlined),
           ),
 
@@ -274,11 +303,12 @@ class _HomeScreenState extends State<HomeScreen> {
           // ==========================================
           Padding(
             padding: const EdgeInsets.only(right: AppSpacing.large),
-
             child: Stack(
               children: [
                 IconButton(
                   onPressed: () {
+                    FocusScope.of(context).unfocus();
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -286,7 +316,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     );
                   },
-
                   icon: const Icon(Icons.notifications_none_outlined),
                 ),
 
@@ -294,14 +323,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Positioned(
                   right: 10,
                   top: 10,
-
                   child: Container(
                     width: 8,
                     height: 8,
-
                     decoration: BoxDecoration(
                       color: theme.colorScheme.error,
-
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -315,202 +341,277 @@ class _HomeScreenState extends State<HomeScreen> {
       // ==========================================
       // MAIN CONTENT
       // ==========================================
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.large,
-          AppSpacing.normal,
-          AppSpacing.large,
-          AppSpacing.large,
-        ),
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
 
-        children: [
-          // ==========================================
-          // ACTIVE NUDGES SUMMARY
-          // ==========================================
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.large),
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
 
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
+        child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
 
-              borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
-            ),
-
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-
-              children: [
-                Text(
-                  '${AppData.nudges.length} Active Nudges',
-
-                  style: const TextStyle(
-                    color: AppColors.dark,
-
-                    fontSize: 28,
-
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-
-                const SizedBox(height: AppSpacing.small),
-
-                Text(
-                  'Your location reminders are active',
-
-                  style: TextStyle(
-                    color: AppColors.dark.withValues(alpha: 0.7),
-
-                    fontSize: 14,
-                  ),
-                ),
-
-                const SizedBox(height: AppSpacing.large),
-
-                // ==========================================
-                // TRIGGER STATISTICS
-                // ==========================================
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                  crossAxisAlignment: CrossAxisAlignment.center,
-
-                  children: [
-                    // ARRIVE
-                    Expanded(
-                      child: _buildSummaryStat(
-                        value: arriveCount.toString(),
-
-                        label: 'ARRIVE',
-
-                        trigger: NudgeTrigger.arrive,
-                      ),
-                    ),
-
-                    Container(
-                      width: 1,
-                      height: 32,
-
-                      color: AppColors.dark.withValues(alpha: 0.18),
-                    ),
-
-                    // LEAVE
-                    Expanded(
-                      child: _buildSummaryStat(
-                        value: leaveCount.toString(),
-
-                        label: 'LEAVE',
-
-                        trigger: NudgeTrigger.leave,
-                      ),
-                    ),
-
-                    Container(
-                      width: 1,
-                      height: 32,
-
-                      color: AppColors.dark.withValues(alpha: 0.18),
-                    ),
-
-                    // NEARBY
-                    Expanded(
-                      child: _buildSummaryStat(
-                        value: nearbyCount.toString(),
-
-                        label: 'NEARBY',
-
-                        trigger: NudgeTrigger.nearby,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.large,
+            AppSpacing.normal,
+            AppSpacing.large,
+            AppSpacing.large,
           ),
 
-          const SizedBox(height: AppSpacing.large),
+          children: [
+            // ==========================================
+            // ACTIVE NUDGES SUMMARY
+            // ==========================================
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.large),
 
-          // ==========================================
-          // CATEGORY CHIPS
-          // ==========================================
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+              decoration: BoxDecoration(
+                color: AppColors.blueVeryLight,
+                borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+              ),
 
-            child: Row(
-              children: [
-                // ALL
-                _buildCategoryChip(
-                  context: context,
-
-                  label: 'All',
-
-                  categoryId: null,
-                ),
-
-                const SizedBox(width: AppSpacing.small),
-
-                // CATEGORIES
-                for (int i = 0; i < AppData.categories.length; i++) ...[
-                  _buildCategoryChip(
-                    context: context,
-
-                    label: AppData.categories[i].name,
-
-                    categoryId: AppData.categories[i].id,
-                  ),
-
-                  if (i != AppData.categories.length - 1)
-                    const SizedBox(width: AppSpacing.small),
-                ],
-              ],
-            ),
-          ),
-
-          const SizedBox(height: AppSpacing.normal),
-
-          // ==========================================
-          // FILTER INFORMATION
-          // ==========================================
-          if (_selectedTrigger != null || _selectedCategory != null)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.normal),
-
-              child: Row(
+              child: Stack(
                 children: [
-                  Icon(
-                    Icons.filter_alt_outlined,
-
-                    size: 18,
-
-                    color: theme.colorScheme.primary,
-                  ),
-
-                  const SizedBox(width: AppSpacing.small),
-
-                  Expanded(
-                    child: Text(
-                      _getFilterText(),
-
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-
-                        fontWeight: FontWeight.w600,
+                  Positioned.fill(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+                      child: Transform.translate(
+                        offset: const Offset(35, 0),
+                        child: Opacity(
+                          opacity: 0.4,
+                          child: Image.asset(
+                            'assets/images/Active_Nudge-bg.jpg',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                     ),
+                  ),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                    children: [
+                      // Total nudges
+                      Text(
+                        '${AppData.nudges.where((nudge) => nudge.status == 'active').length} Active Nudges',
+
+                        style: const TextStyle(
+                          color: AppColors.dark,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+
+                      const SizedBox(height: AppSpacing.small),
+
+                      Text(
+                        'Your location reminders are active',
+
+                        style: TextStyle(
+                          color: AppColors.dark.withValues(alpha: 0.7),
+                          fontSize: 14,
+                        ),
+                      ),
+
+                      const SizedBox(height: AppSpacing.small),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+
+                        children: [
+                          Expanded(
+                            child: _buildSummaryStat(
+                              value: arriveCount.toString(),
+                              label: 'ARRIVE',
+                              trigger: NudgeTrigger.arrive,
+                            ),
+                          ),
+
+                          Container(
+                            width: 1,
+                            height: 32,
+                            color: AppColors.dark.withValues(alpha: 0.18),
+                          ),
+
+                          Expanded(
+                            child: _buildSummaryStat(
+                              value: leaveCount.toString(),
+                              label: 'LEAVE',
+                              trigger: NudgeTrigger.leave,
+                            ),
+                          ),
+
+                          Container(
+                            width: 1,
+                            height: 32,
+                            color: AppColors.dark.withValues(alpha: 0.18),
+                          ),
+
+                          Expanded(
+                            child: _buildSummaryStat(
+                              value: nearbyCount.toString(),
+                              label: 'NEARBY',
+                              trigger: NudgeTrigger.nearby,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
 
-          // ==========================================
-          // EMPTY STATE
-          // ==========================================
-          if (filteredNudges.isEmpty) _buildEmptyNudgeState(context),
+            const SizedBox(height: AppSpacing.large),
 
-          // ==========================================
-          // NUDGE LIST
-          // ==========================================
-          for (final nudge in filteredNudges) _buildNudgeCard(context, nudge),
-        ],
+            // ==========================================
+            // SEARCH NUDGES
+            // ==========================================
+            SizedBox(
+              height: 48,
+
+              child: TextField(
+                onChanged: _searchNudges,
+
+                textInputAction: TextInputAction.search,
+
+                decoration: InputDecoration(
+                  hintText: 'Search your nudges',
+
+                  prefixIcon: const Icon(Icons.search_rounded, size: 21),
+
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _searchQuery = '';
+                            });
+
+                            FocusScope.of(context).unfocus();
+                          },
+
+                          icon: const Icon(Icons.close_rounded, size: 20),
+                        )
+                      : null,
+
+                  filled: true,
+
+                  fillColor: theme.colorScheme.surface,
+
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.normal,
+
+                    vertical: 0,
+                  ),
+
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+
+                    borderSide: BorderSide(
+                      color: theme.colorScheme.outlineVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.normal),
+
+            // ==========================================
+            // CATEGORY CHIPS
+            // ==========================================
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+
+              child: Row(
+                children: [
+                  // ALL
+                  _buildCategoryChip(
+                    context: context,
+                    label: 'All',
+                    categoryId: null,
+                  ),
+
+                  const SizedBox(width: AppSpacing.small),
+
+                  // CATEGORIES
+                  for (int i = 0; i < AppData.categories.length; i++) ...[
+                    _buildCategoryChip(
+                      context: context,
+                      label: AppData.categories[i].name,
+                      categoryId: AppData.categories[i].id,
+                    ),
+
+                    if (i != AppData.categories.length - 1)
+                      const SizedBox(width: AppSpacing.small),
+                  ],
+                ],
+              ),
+            ),
+
+            const SizedBox(height: AppSpacing.normal),
+
+            // ==========================================
+            // FILTER INFORMATION
+            // ==========================================
+            if (_selectedTrigger != null || _selectedCategory != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.normal),
+
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.filter_alt_outlined,
+                      size: 18,
+                      color: theme.colorScheme.primary,
+                    ),
+
+                    const SizedBox(width: AppSpacing.small),
+
+                    Expanded(
+                      child: Text(
+                        _getFilterText(),
+
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // ==========================================
+            // EMPTY STATE
+            // ==========================================
+            if (filteredNudges.isEmpty) _buildEmptyNudgeState(context),
+
+            // ==========================================
+            // NUDGE LIST
+            // ==========================================
+            for (final nudge in filteredNudges) _buildNudgeCard(context, nudge),
+          ],
+        ),
       ),
     );
   }
@@ -535,7 +636,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(
           vertical: AppSpacing.small,
-
           horizontal: AppSpacing.small,
         ),
 
@@ -555,20 +655,20 @@ class _HomeScreenState extends State<HomeScreen> {
           textBaseline: TextBaseline.alphabetic,
 
           children: [
+            // Number
             Text(
               value,
 
               style: const TextStyle(
                 color: AppColors.dark,
-
                 fontSize: 26,
-
                 fontWeight: FontWeight.w800,
               ),
             ),
 
             const SizedBox(width: 8),
 
+            // Label
             Flexible(
               child: Text(
                 label,
@@ -680,7 +780,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
     String message = 'No nudges found';
 
-    if (_selectedTrigger != null && _selectedCategory != null) {
+    if (_searchQuery.isNotEmpty) {
+      message = 'No nudges match your search';
+    } else if (_selectedTrigger != null && _selectedCategory != null) {
       message =
           'No ${_getCategoryName(_selectedCategory!)} '
           'nudges for '
@@ -700,9 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Icon(
             Icons.notifications_none_rounded,
-
             size: 48,
-
             color: theme.colorScheme.outline,
           ),
 
@@ -728,17 +828,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNudgeCard(BuildContext context, Nudge nudge) {
     final theme = Theme.of(context);
 
+    // Find category
     final category = AppData.categories.firstWhere(
       (item) => item.id == nudge.categoryId,
     );
 
+    // Find place
     final place = AppData.places.firstWhere((item) => item.id == nudge.placeId);
 
     return Dismissible(
+      // Unique key
       key: Key(nudge.id),
 
+      // Swipe right to left
       direction: DismissDirection.endToStart,
 
+      // Background
       background: Container(
         margin: const EdgeInsets.only(bottom: AppSpacing.standard),
 
@@ -773,32 +878,39 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
 
+      // Complete Nudge
       onDismissed: (direction) {
         completeNudge(nudge);
       },
 
+      // Card
       child: Card(
         margin: const EdgeInsets.only(bottom: AppSpacing.standard),
 
         elevation: 0,
 
+        color: theme.brightness == Brightness.light
+            ? AppColors.lightSurface
+            : null,
+
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
 
-          side: BorderSide(color: theme.colorScheme.outlineVariant),
+          // side: BorderSide(color: theme.colorScheme.outlineVariant),
         ),
 
         child: InkWell(
           borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
 
           onTap: () {
+            FocusScope.of(context).unfocus();
+
             editNudge(nudge);
           },
 
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.standard,
-
               vertical: AppSpacing.standard,
             ),
 
@@ -806,7 +918,7 @@ class _HomeScreenState extends State<HomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-                // TITLE + CATEGORY
+                // Title + category
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
 
@@ -830,7 +942,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       style: theme.textTheme.bodySmall?.copyWith(
                         fontWeight: FontWeight.w700,
-
                         color: theme.colorScheme.secondary,
                       ),
                     ),
@@ -839,7 +950,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const SizedBox(height: AppSpacing.small),
 
-                // PLACE + TRIGGER + RADIUS
+                // Place + trigger + radius
                 Text(
                   '${place.name} · '
                   '${nudge.trigger.label} · '
