@@ -90,42 +90,10 @@ class AppData {
   // Nudge History
   static List<NudgeHistory> history = [];
   static void removeExpiredHistory() {
-  final cutoffDate = DateTime.now().subtract(
-    const Duration(days: 90),
-  );
+    final cutoffDate = DateTime.now().subtract(const Duration(days: 90));
 
-  history.removeWhere(
-    (item) => item.triggeredAt.isBefore(cutoffDate),
-  );
-}
+    history.removeWhere((item) => item.triggeredAt.isBefore(cutoffDate));
+  }
 
-  static List<NotificationItem> notifications = [
-    NotificationItem(
-      id: 'notification_01',
-      nudgeId: '1',
-      title: 'Buy chicken',
-      message: 'Your nudge was triggered',
-      place: 'Near Market',
-      createdAt: DateTime(2026, 9, 11, 18, 30),
-      isRead: false,
-    ),
-    NotificationItem(
-      id: 'notification_02',
-      nudgeId: '2',
-      title: 'Submit document',
-      message: 'Your nudge was triggered',
-      place: 'Near University',
-      createdAt: DateTime(2026, 9, 11, 16, 15),
-      isRead: false,
-    ),
-    NotificationItem(
-      id: 'notification_03',
-      nudgeId: '3',
-      title: 'Go to work',
-      message: 'Your nudge was triggered',
-      place: 'Near Office',
-      createdAt: DateTime(2026, 9, 10, 9, 20),
-      isRead: true,
-    ),
-  ];
+  static List<NotificationItem> notifications = [];
 }
