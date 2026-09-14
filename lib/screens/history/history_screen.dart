@@ -35,6 +35,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
     'Dec',
   ];
 
+  // ==========================================
+  // REMOVE HISTORY OLDER THAN 90 DAYS
+  // ==========================================
+  @override
+  void initState() {
+    super.initState();
+
+    final cutoffDate = DateTime.now().subtract(
+      const Duration(days: 90),
+    );
+
+    AppData.history.removeWhere(
+      (item) => item.triggeredAt.isBefore(cutoffDate),
+    );
+  }
+
+  // ==========================================
+  // DELETE HISTORY
+  // ==========================================
+  void _deleteHistory(String historyId) {
+    setState(() {
+      AppData.history.removeWhere(
+        (item) => item.id == historyId,
+      );
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('History deleted'),
+      ),
+    );
+  }
+
   DateTime _getDateOnly(DateTime date) {
     return DateTime(
       date.year,
@@ -214,6 +247,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
         titleSpacing: AppSpacing.standard,
 
@@ -290,6 +324,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               height: AppSpacing.normal,
             ),
 
+            // ==========================================
+            // FILTER CHIP
+            // ==========================================
             if (_selectedFilter != 'All')
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -339,6 +376,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 height: AppSpacing.normal,
               ),
 
+            // ==========================================
+            // 90 DAYS INFORMATION
+            // ==========================================
+
+            const SizedBox(
+              height: AppSpacing.normal,
+            ),
+
+            // ==========================================
+            // HISTORY LIST
+            // ==========================================
             Expanded(
               child: filteredHistory.isEmpty
                   ? _buildEmptyState(context)
@@ -444,6 +492,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
+  // ==========================================
+  // HISTORY CARD
+  // ==========================================
   Widget _buildHistoryCard(
     BuildContext context,
     NudgeHistory item,
@@ -456,95 +507,133 @@ class _HistoryScreenState extends State<HistoryScreen> {
       item.nudgeId,
     );
 
-    return Container(
-      margin: const EdgeInsets.only(
-        bottom: AppSpacing.small,
-      ),
+    return Dismissible(
+      key: Key(item.id),
 
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.normal,
-        vertical: AppSpacing.normal,
-      ),
+      direction: DismissDirection.endToStart,
 
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(
-          AppSizes.radiusLarge,
+      background: Container(
+        margin: const EdgeInsets.only(
+          bottom: AppSpacing.small,
         ),
-        border: Border.all(
-          color: theme.brightness == Brightness.dark
-              ? AppColors.outlineDark.withAlpha(
-                  (255 * 0.1).round(),
-                )
-              : AppColors.outlineLight,
+
+        padding: const EdgeInsets.only(
+          right: AppSpacing.large,
+        ),
+
+        decoration: BoxDecoration(
+          color: colors.error,
+          borderRadius: BorderRadius.circular(
+            AppSizes.radiusLarge,
+          ),
+        ),
+
+        alignment: Alignment.centerRight,
+
+        child: Icon(
+          Icons.delete_outline_rounded,
+          color: colors.onError,
         ),
       ),
 
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: colors.primaryContainer,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              Icons.check_rounded,
-              size: 20,
-              color: colors.onPrimaryContainer,
-            ),
+      onDismissed: (direction) {
+        _deleteHistory(item.id);
+      },
+
+      child: Container(
+        margin: const EdgeInsets.only(
+          bottom: AppSpacing.small,
+        ),
+
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.normal,
+          vertical: AppSpacing.normal,
+        ),
+
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(
+            AppSizes.radiusLarge,
           ),
-
-          const SizedBox(
-            width: AppSpacing.normal,
+          border: Border.all(
+            color: theme.brightness == Brightness.dark
+                ? AppColors.outlineDark.withAlpha(
+                    (255 * 0.1).round(),
+                  )
+                : AppColors.outlineLight,
           ),
+        ),
 
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  nudge?.title ?? 'Unknown Nudge',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.cardTitle,
-                ),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: colors.primaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.check_rounded,
+                size: 20,
+                color: colors.onPrimaryContainer,
+              ),
+            ),
 
-                const SizedBox(
-                  height: AppSpacing.micro,
-                ),
+            const SizedBox(
+              width: AppSpacing.normal,
+            ),
 
-                Text(
-                  nudge == null
-                      ? 'Unknown Place · Unknown Category'
-                      : '${_getPlaceName(nudge.placeId)} · '
-                        '${_getCategoryName(nudge.categoryId)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTextStyles.smallText.copyWith(
-                    color: colors.onSurfaceVariant,
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    nudge?.title ?? 'Unknown Nudge',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.cardTitle,
                   ),
-                ),
-              ],
-            ),
-          ),
 
-          const SizedBox(
-            width: AppSpacing.small,
-          ),
+                  const SizedBox(
+                    height: AppSpacing.micro,
+                  ),
 
-          Text(
-            _getTime(item.triggeredAt),
-            style: AppTextStyles.smallText.copyWith(
-              color: colors.onSurfaceVariant,
+                  Text(
+                    nudge == null
+                        ? 'Unknown Place · Unknown Category'
+                        : '${_getPlaceName(nudge.placeId)} · '
+                          '${_getCategoryName(nudge.categoryId)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTextStyles.smallText.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+
+            const SizedBox(
+              width: AppSpacing.small,
+            ),
+
+            Text(
+              _getTime(item.triggeredAt),
+              style: AppTextStyles.smallText.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  // ==========================================
+  // EMPTY STATE
+  // ==========================================
   Widget _buildEmptyState(
     BuildContext context,
   ) {

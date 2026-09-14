@@ -72,6 +72,15 @@ class AppData {
 
   // Nudge History
   static List<NudgeHistory> history = [];
+  static void removeExpiredHistory() {
+  final cutoffDate = DateTime.now().subtract(
+    const Duration(days: 90),
+  );
+
+  history.removeWhere(
+    (item) => item.triggeredAt.isBefore(cutoffDate),
+  );
+}
 
   static List<NotificationItem> notifications = [
     NotificationItem(
