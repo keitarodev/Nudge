@@ -3,8 +3,6 @@ import 'package:nudge/screens/notifications/notifications_screen.dart';
 
 import '../../data/app_data.dart';
 import '../../models/nudge.dart';
-import '../../models/notification_item.dart';
-import '../../models/nudge_history.dart';
 
 import '../../theme/app_colors.dart';
 import '../../theme/app_sizes.dart';
@@ -12,7 +10,9 @@ import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 
 import '../history/history_screen.dart';
+import '../trigger_test/trigger_test_screen.dart';
 import 'edit_nudge_bottom_sheet.dart';
+import '../../services/nudge_trigger_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,46 +84,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // COMPLETE NUDGE
   // ==========================================
   void completeNudge(Nudge nudge) {
-    final now = DateTime.now();
+    NudgeTriggerService.completeNudge(nudge);
 
-    final historyItem = NudgeHistory(
-      id: now.millisecondsSinceEpoch.toString(),
-      nudgeId: nudge.id,
-      status: 'completed',
-      triggeredAt: now,
-    );
-
-    AppData.history.add(historyItem);
-
-    AppData.notifications.add(
-      NotificationItem(
-        id: '${now.millisecondsSinceEpoch}_notification',
-        nudgeId: nudge.id,
-        title: nudge.title,
-        message: 'Your nudge was triggered',
-        place: _getPlaceName(nudge.placeId),
-        createdAt: now,
-        isRead: false,
-      ),
-    );
-
-    setState(() {
-      final index = AppData.nudges.indexWhere((item) => item.id == nudge.id);
-
-      if (index != -1) {
-        AppData.nudges[index] = Nudge(
-          id: nudge.id,
-          title: nudge.title,
-          categoryId: nudge.categoryId,
-          placeId: nudge.placeId,
-          trigger: nudge.trigger,
-          radius: nudge.radius,
-          status: 'completed',
-          createdAt: nudge.createdAt,
-          lastTriggeredAt: now,
-        );
-      }
-    });
+    setState(() {});
 
     ScaffoldMessenger.of(
       context,
@@ -232,15 +195,24 @@ class _HomeScreenState extends State<HomeScreen> {
     // TRIGGER COUNTS
     // ==========================================
     final arriveCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.arrive)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' && nudge.trigger == NudgeTrigger.arrive,
+        )
         .length;
 
     final leaveCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.leave)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' && nudge.trigger == NudgeTrigger.leave,
+        )
         .length;
 
     final nearbyCount = AppData.nudges
-        .where((nudge) => nudge.trigger == NudgeTrigger.nearby)
+        .where(
+          (nudge) =>
+              nudge.status == 'active' && nudge.trigger == NudgeTrigger.nearby,
+        )
         .length;
 
     // ==========================================
@@ -283,6 +255,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
         // Header buttons
         actions: [
+          IconButton(
+            onPressed: () async {
+              FocusScope.of(context).unfocus();
+
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TriggerTestScreen(),
+                ),
+              );
+
+              if (result == true && mounted) {
+                setState(() {});
+              }
+            },
+            icon: const Icon(Icons.play_circle_outline_rounded),
+            tooltip: 'Test Triggers',
+          ),
           // ==========================================
           // HISTORY
           // ==========================================
