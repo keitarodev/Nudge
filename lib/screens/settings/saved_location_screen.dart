@@ -10,7 +10,9 @@ import '../../models/place.dart';
 import 'map_picker_screen.dart';
 
 class SavedLocationScreen extends StatefulWidget {
-  const SavedLocationScreen({super.key});
+  final bool openAddDialog;
+
+  const SavedLocationScreen({super.key, this.openAddDialog = false});
 
   @override
   State<SavedLocationScreen> createState() => _SavedLocationScreenState();
@@ -18,6 +20,23 @@ class SavedLocationScreen extends StatefulWidget {
 
 class _SavedLocationScreenState extends State<SavedLocationScreen> {
   LatLng? selectedLocation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.openAddDialog) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final placeId = await addLocation();
+
+        if (!mounted) {
+          return;
+        }
+
+        Navigator.pop(context, placeId);
+      });
+    }
+  }
 
   Future<MapLocationResult?> chooseLocation(
     LatLng? initialLocation,
@@ -34,8 +53,8 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
     );
   }
 
-  void addLocation() {
-    showLocationDialog();
+  Future<String?> addLocation() async {
+    return showLocationDialog();
   }
 
   void editLocation(int index) {
@@ -76,7 +95,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
     );
   }
 
-  void showLocationDialog({int? index}) {
+  Future<String?> showLocationDialog({int? index}) async {
     final nameController = TextEditingController(
       text: index == null ? "" : AppData.places[index].name,
     );
@@ -96,7 +115,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
             AppData.places[index].longitude,
           );
 
-    showDialog(
+    return showDialog<String>(
       context: context,
       builder: (context) {
         return AlertDialog(
@@ -185,11 +204,16 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
                   return;
                 }
 
+                String? newPlaceId;
+
                 setState(() {
                   if (index == null) {
+                    newPlaceId = DateTime.now().millisecondsSinceEpoch
+                        .toString();
+
                     AppData.places.add(
                       SavedPlace(
-                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        id: newPlaceId!,
                         name: name,
                         address: address,
                         latitude: location.latitude,
@@ -209,7 +233,7 @@ class _SavedLocationScreenState extends State<SavedLocationScreen> {
                   }
                 });
 
-                Navigator.pop(context);
+                Navigator.pop(context, newPlaceId);
               },
               child: Text(
                 "Save",
