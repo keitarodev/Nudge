@@ -251,7 +251,7 @@ class _NewNudgeScreenState extends State<NewNudgeScreen> {
                         color: colors.primary,
                       ),
                       title: Text(place.name),
-                      subtitle: Text(place.address),
+                      subtitle: Text('${place.address} · ${place.radius} m'),
                       trailing: selectedPlace == place.id
                           ? Icon(Icons.check_rounded, color: colors.primary)
                           : null,

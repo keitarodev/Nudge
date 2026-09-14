@@ -8,6 +8,7 @@ import '../../models/place.dart';
 import '../../theme/app_sizes.dart';
 import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
+import '../settings/saved_location_screen.dart';
 
 class EditNudgeBottomSheet extends StatefulWidget {
   final Nudge nudge;
@@ -84,46 +85,225 @@ class _EditNudgeBottomSheetState extends State<EditNudgeBottomSheet> {
   }
 
   // ==========================================
+  // ADD CATEGORY
+  // ==========================================
+  Future<String?> _addCategory() async {
+    String categoryName = '';
+
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
+
+    final name = await showDialog<String>(
+      context: rootNavigator.context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Add Category'),
+          content: TextField(
+            autofocus: true,
+            decoration: const InputDecoration(labelText: 'Category name'),
+            onChanged: (value) {
+              categoryName = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final value = categoryName.trim();
+
+                if (value.isEmpty) {
+                  return;
+                }
+
+                Navigator.pop(dialogContext, value);
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (name == null || name.trim().isEmpty) {
+      return null;
+    }
+
+    final newId = 'category_${DateTime.now().millisecondsSinceEpoch}';
+
+    AppData.categories.add(NudgeCategory(id: newId, name: name.trim()));
+
+    return newId;
+  }
+
+  // ==========================================
+  // SELECT CATEGORY
+  // ==========================================
+  Future<void> selectCategory() async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (bottomSheetContext) {
+        final colors = Theme.of(bottomSheetContext).colorScheme;
+        final textTheme = Theme.of(bottomSheetContext).textTheme;
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.large),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select Category', style: textTheme.headlineSmall),
+
+                  const SizedBox(height: AppSpacing.standard),
+
+                  for (final category in widget.categories)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.category_outlined,
+                        color: colors.primary,
+                      ),
+                      title: Text(category.name),
+                      trailing: selectedCategoryId == category.id
+                          ? Icon(Icons.check_rounded, color: colors.primary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(bottomSheetContext, category.id);
+                      },
+                    ),
+
+                  const SizedBox(height: AppSpacing.small),
+
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(Icons.add_outlined, color: colors.primary),
+                    title: const Text('Add Category'),
+                    onTap: () {
+                      Navigator.pop(bottomSheetContext, '__add_category__');
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    // User selected an existing category.
+    if (selected != null && selected != '__add_category__') {
+      setState(() {
+        selectedCategoryId = selected;
+      });
+
+      return;
+    }
+
+    // User wants to add a new category.
+    if (selected == '__add_category__') {
+      if (!mounted) {
+        return;
+      }
+
+      // Wait until the category bottom sheet has been fully
+      // removed from the widget tree before opening the dialog.
+      await WidgetsBinding.instance.endOfFrame;
+
+      if (!mounted) {
+        return;
+      }
+
+      final addedCategory = await _addCategory();
+
+      if (addedCategory == null) {
+        return;
+      }
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        selectedCategoryId = addedCategory;
+      });
+    }
+  }
+
+  // ==========================================
   // SELECT PLACE
   // ==========================================
   Future<void> selectPlace() async {
     final selectedPlace = await showModalBottomSheet<SavedPlace>(
       context: context,
+      showDragHandle: true,
+      builder: (bottomSheetContext) {
+        final colors = Theme.of(bottomSheetContext).colorScheme;
+        final textTheme = Theme.of(bottomSheetContext).textTheme;
 
-      builder: (context) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.large),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select Place', style: textTheme.headlineSmall),
 
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+                  const SizedBox(height: AppSpacing.standard),
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+                  for (final place in widget.places)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.location_on_outlined,
+                        color: colors.primary,
+                      ),
+                      title: Text(place.name),
+                      subtitle: Text('${place.address} · ${place.radius} m'),
+                      trailing: selectedPlaceId == place.id
+                          ? Icon(Icons.check_rounded, color: colors.primary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(bottomSheetContext, place);
+                      },
+                    ),
 
-              children: [
-                Text('Select Place', style: AppTextStyles.heading),
+                  const SizedBox(height: AppSpacing.small),
 
-                const SizedBox(height: AppSpacing.standard),
-
-                for (final place in widget.places)
                   ListTile(
-                    leading: const Icon(Icons.location_on_outlined),
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(
+                      Icons.add_location_alt_outlined,
+                      color: colors.primary,
+                    ),
+                    title: const Text('Add Place'),
+                    onTap: () async {
+                      Navigator.pop(bottomSheetContext);
 
-                    title: Text(place.name),
+                      final addedPlaceId = await Navigator.push<String>(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const SavedLocationScreen(openAddDialog: true),
+                        ),
+                      );
 
-                    subtitle: Text(place.address),
-
-                    trailing: selectedPlaceId == place.id
-                        ? const Icon(Icons.check)
-                        : null,
-
-                    onTap: () {
-                      Navigator.pop(context, place);
+                      if (addedPlaceId != null) {
+                        setState(() {
+                          selectedPlaceId = addedPlaceId;
+                        });
+                      }
                     },
                   ),
-
-                const SizedBox(height: AppSpacing.small),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -143,39 +323,42 @@ class _EditNudgeBottomSheetState extends State<EditNudgeBottomSheet> {
   Future<void> selectTrigger() async {
     final selected = await showModalBottomSheet<NudgeTrigger>(
       context: context,
+      showDragHandle: true,
+      builder: (bottomSheetContext) {
+        final colors = Theme.of(bottomSheetContext).colorScheme;
+        final textTheme = Theme.of(bottomSheetContext).textTheme;
 
-      builder: (context) {
         return SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.large),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select Trigger', style: textTheme.headlineSmall),
 
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+                  const SizedBox(height: AppSpacing.standard),
 
-              crossAxisAlignment: CrossAxisAlignment.start,
+                  for (final trigger in NudgeTrigger.values)
+                    ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(
+                        Icons.notifications_outlined,
+                        color: colors.primary,
+                      ),
+                      title: Text(trigger.label),
+                      trailing: selectedTrigger == trigger
+                          ? Icon(Icons.check_rounded, color: colors.primary)
+                          : null,
+                      onTap: () {
+                        Navigator.pop(bottomSheetContext, trigger);
+                      },
+                    ),
 
-              children: [
-                Text('Select Trigger', style: AppTextStyles.heading),
-
-                const SizedBox(height: AppSpacing.standard),
-
-                for (final trigger in NudgeTrigger.values)
-                  ListTile(
-                    leading: const Icon(Icons.notifications_outlined),
-
-                    title: Text(trigger.label),
-
-                    trailing: selectedTrigger == trigger
-                        ? const Icon(Icons.check)
-                        : null,
-
-                    onTap: () {
-                      Navigator.pop(context, trigger);
-                    },
-                  ),
-
-                const SizedBox(height: AppSpacing.small),
-              ],
+                  const SizedBox(height: AppSpacing.small),
+                ],
+              ),
             ),
           ),
         );
@@ -204,7 +387,11 @@ class _EditNudgeBottomSheetState extends State<EditNudgeBottomSheet> {
 
       trigger: selectedTrigger,
 
-      radius: widget.nudge.radius,
+      radius: selectedPlaceId == widget.nudge.placeId
+          ? widget.nudge.radius
+          : widget.places
+                .firstWhere((place) => place.id == selectedPlaceId)
+                .radius,
 
       status: widget.nudge.status,
 
@@ -371,61 +558,38 @@ class _EditNudgeBottomSheetState extends State<EditNudgeBottomSheet> {
               // ==========================================
               // CATEGORY
               // ==========================================
-              DropdownButtonFormField<String>(
-                initialValue: selectedCategoryId,
-
-                decoration: InputDecoration(
-                  labelText: 'Category',
-
-                  prefixIcon: const Icon(Icons.category_outlined),
-
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppSizes.radiusMedium),
-                  ),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.category_outlined,
+                  color: theme.colorScheme.primary,
                 ),
-
-                items: [
-                  for (final category in widget.categories)
-                    DropdownMenuItem(
-                      value: category.id,
-
-                      child: Text(category.name),
-                    ),
-                ],
-
-                onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      selectedCategoryId = value;
-                    });
-                  }
-                },
+                title: const Text('Category'),
+                subtitle: Text(
+                  getCategoryName(),
+                  style: theme.textTheme.bodyMedium,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: selectCategory,
               ),
 
-              const SizedBox(height: AppSpacing.standard),
+              const SizedBox(height: AppSpacing.small),
 
               // ==========================================
               // PLACE
               // ==========================================
               ListTile(
                 contentPadding: EdgeInsets.zero,
-
                 leading: Icon(
                   Icons.location_on_outlined,
-
                   color: theme.colorScheme.primary,
                 ),
-
                 title: const Text('Place'),
-
                 subtitle: Text(
-                  getPlaceName(),
-
+                  '${getPlaceName()} · ${widget.places.firstWhere((place) => place.id == selectedPlaceId).radius} m',
                   style: theme.textTheme.bodyMedium,
                 ),
-
                 trailing: const Icon(Icons.chevron_right),
-
                 onTap: selectPlace,
               ),
 
