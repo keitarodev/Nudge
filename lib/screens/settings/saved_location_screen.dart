@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 import '../../data/app_data.dart';
 import '../../theme/app_sizes.dart';
@@ -6,17 +7,32 @@ import '../../theme/app_spacing.dart';
 import '../../theme/app_text_styles.dart';
 import '../../theme/app_colors.dart';
 import '../../models/place.dart';
+import 'map_picker_screen.dart';
 
 class SavedLocationScreen extends StatefulWidget {
   const SavedLocationScreen({super.key});
 
   @override
-  State<SavedLocationScreen> createState() =>
-      _SavedLocationScreenState();
+  State<SavedLocationScreen> createState() => _SavedLocationScreenState();
 }
 
-class _SavedLocationScreenState
-    extends State<SavedLocationScreen> {
+class _SavedLocationScreenState extends State<SavedLocationScreen> {
+  LatLng? selectedLocation;
+
+  Future<MapLocationResult?> chooseLocation(
+    LatLng? initialLocation,
+    int initialRadius,
+  ) async {
+    return Navigator.push<MapLocationResult>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapPickerScreen(
+          initialLocation: initialLocation,
+          initialRadius: initialRadius,
+        ),
+      ),
+    );
+  }
 
   void addLocation() {
     showLocationDialog();
@@ -62,31 +78,33 @@ class _SavedLocationScreenState
 
   void showLocationDialog({int? index}) {
     final nameController = TextEditingController(
-      text: index == null
-          ? ""
-          : AppData.places[index].name,
+      text: index == null ? "" : AppData.places[index].name,
     );
 
-    final addressController =
-        TextEditingController(
-      text: index == null
-          ? ""
-          : AppData.places[index].address,
+    final addressController = TextEditingController(
+      text: index == null ? "" : AppData.places[index].address,
     );
+
+    int dialogRadius = index == null
+        ? (AppData.radii.isNotEmpty ? AppData.radii.first.meters : 250)
+        : AppData.places[index].radius;
+
+    LatLng? dialogLocation = index == null
+        ? null
+        : LatLng(
+            AppData.places[index].latitude,
+            AppData.places[index].longitude,
+          );
 
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(
-              AppSizes.radiusLarge,
-            ),
+            borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
           ),
           title: Text(
-            index == null
-                ? "Add Place"
-                : "Edit Place",
+            index == null ? "Add Place" : "Edit Place",
             style: AppTextStyles.cardTitle,
           ),
 
@@ -98,28 +116,46 @@ class _SavedLocationScreenState
                 decoration: InputDecoration(
                   hintText: "Place name",
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      AppSizes.radiusSmall,
-                    ),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
                   ),
                 ),
               ),
 
-              const SizedBox(
-                height: AppSpacing.standard,
-              ),
+              const SizedBox(height: AppSpacing.standard),
 
               TextField(
                 controller: addressController,
                 decoration: InputDecoration(
                   hintText: "Address",
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(
-                      AppSizes.radiusSmall,
-                    ),
+                    borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
                   ),
+                ),
+              ),
+
+              const SizedBox(height: AppSpacing.standard),
+
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final selected = await chooseLocation(
+                    dialogLocation,
+                    dialogRadius,
+                  );
+
+                  if (selected == null) {
+                    return;
+                  }
+
+                  setState(() {
+                    dialogLocation = selected.location;
+                    dialogRadius = selected.radius;
+                  });
+                },
+                icon: const Icon(Icons.map_outlined),
+                label: Text(
+                  dialogLocation == null
+                      ? 'Choose on Map'
+                      : 'Location Selected',
                 ),
               ),
             ],
@@ -135,14 +171,17 @@ class _SavedLocationScreenState
 
             TextButton(
               onPressed: () {
-                final name =
-                    nameController.text.trim();
+                final name = nameController.text.trim().isEmpty
+                    ? 'Your Place'
+                    : nameController.text.trim();
 
-                final address =
-                    addressController.text.trim();
+                final address = addressController.text.trim().isEmpty
+                    ? 'Your Address'
+                    : addressController.text.trim();
 
-                if (name.isEmpty ||
-                    address.isEmpty) {
+                final location = dialogLocation;
+
+                if (location == null) {
                   return;
                 }
 
@@ -150,21 +189,22 @@ class _SavedLocationScreenState
                   if (index == null) {
                     AppData.places.add(
                       SavedPlace(
-                        id: DateTime.now()
-                            .millisecondsSinceEpoch
-                            .toString(),
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
                         name: name,
                         address: address,
+                        latitude: location.latitude,
+                        longitude: location.longitude,
+                        radius: dialogRadius,
                       ),
                     );
                   } else {
-                    AppData.places[index] =
-                        SavedPlace(
-                      id: AppData
-                          .places[index]
-                          .id,
+                    AppData.places[index] = SavedPlace(
+                      id: AppData.places[index].id,
                       name: name,
                       address: address,
+                      latitude: location.latitude,
+                      longitude: location.longitude,
+                      radius: dialogRadius,
                     );
                   }
                 });
@@ -173,11 +213,8 @@ class _SavedLocationScreenState
               },
               child: Text(
                 "Save",
-                style:
-                    AppTextStyles.buttonText.copyWith(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .primary,
+                style: AppTextStyles.buttonText.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -191,17 +228,12 @@ class _SavedLocationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        titleSpacing:
-            AppSpacing.standard,
-        title: Text(
-          "Saved Places",
-          style: AppTextStyles.heading,
-        ),
+        titleSpacing: AppSpacing.standard,
+        title: Text("Saved Places", style: AppTextStyles.heading),
       ),
 
       body: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
@@ -210,51 +242,25 @@ class _SavedLocationScreenState
               AppSpacing.standard,
               0,
             ),
-            child: Text(
-              "Your Places",
-              style:
-                  AppTextStyles.sectionHeading,
-            ),
+            child: Text("Your Places", style: AppTextStyles.sectionHeading),
           ),
 
           Expanded(
             child: ListView.builder(
-              padding:
-                  const EdgeInsets.all(
-                AppSpacing.standard,
-              ),
-              itemCount:
-                  AppData.places.length,
-              itemBuilder:
-                  (context, index) {
-                final place =
-                    AppData.places[index];
+              padding: const EdgeInsets.all(AppSpacing.standard),
+              itemCount: AppData.places.length,
+              itemBuilder: (context, index) {
+                final place = AppData.places[index];
 
                 return Container(
-                  margin:
-                      const EdgeInsets.only(
-                    bottom:
-                        AppSpacing.small,
-                  ),
-                  decoration:
-                      BoxDecoration(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .surface,
-                    borderRadius:
-                        BorderRadius.circular(
-                      AppSizes.radiusLarge,
-                    ),
+                  margin: const EdgeInsets.only(bottom: AppSpacing.small),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
                     border: Border.all(
-                      color: Theme.of(context)
-                              .brightness ==
-                          Brightness.dark
-                          ? AppColors.outlineDark
-                              .withAlpha(
-                              (255 * 0.1).round(),
-                            )
-                          : AppColors
-                              .outlineLight,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? AppColors.outlineDark.withAlpha((255 * 0.1).round())
+                          : AppColors.outlineLight,
                     ),
                   ),
 
@@ -262,44 +268,28 @@ class _SavedLocationScreenState
                     leading: Icon(
                       place.name == "Home"
                           ? Icons.home_outlined
-                          : Icons
-                              .location_on_outlined,
+                          : Icons.location_on_outlined,
                       size: AppSizes.icon,
                     ),
 
-                    title: Text(
-                      place.name,
-                    ),
+                    title: Text(place.name),
 
-                    subtitle: Text(
-                      place.address,
-                    ),
+                    subtitle: Text(place.address),
 
                     trailing: Row(
-                      mainAxisSize:
-                          MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(
-                            Icons
-                                .edit_outlined,
-                          ),
+                          icon: const Icon(Icons.edit_outlined),
                           onPressed: () {
-                            editLocation(
-                              index,
-                            );
+                            editLocation(index);
                           },
                         ),
 
                         IconButton(
-                          icon: const Icon(
-                            Icons
-                                .delete_outline,
-                          ),
+                          icon: const Icon(Icons.delete_outline),
                           onPressed: () {
-                            deleteLocation(
-                              index,
-                            );
+                            deleteLocation(index);
                           },
                         ),
                       ],
@@ -312,12 +302,9 @@ class _SavedLocationScreenState
         ],
       ),
 
-      floatingActionButton:
-          FloatingActionButton(
+      floatingActionButton: FloatingActionButton(
         onPressed: addLocation,
-        child: const Icon(
-          Icons.add_location_alt_outlined,
-        ),
+        child: const Icon(Icons.add_location_alt_outlined),
       ),
     );
   }

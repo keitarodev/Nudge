@@ -16,13 +16,30 @@ class AppData {
 
   // Saved Places
   static List<SavedPlace> places = [
-    const SavedPlace(id: 'market', name: 'Market', address: 'Local Market'),
+    const SavedPlace(
+      id: 'market',
+      name: 'Market',
+      address: 'Local Market',
+      latitude: 11.5564,
+      longitude: 104.9282,
+      radius: 500,
+    ),
     const SavedPlace(
       id: 'university',
       name: 'University',
       address: 'University',
+      latitude: 11.5564,
+      longitude: 104.9282,
+      radius: 500,
     ),
-    const SavedPlace(id: 'office', name: 'Office', address: 'Office'),
+    const SavedPlace(
+      id: 'office',
+      name: 'Office',
+      address: 'Office',
+      latitude: 11.5564,
+      longitude: 104.9282,
+      radius: 500,
+    ),
   ];
 
   // Radius Settings
