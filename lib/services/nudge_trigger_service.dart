@@ -4,7 +4,23 @@ import '../models/notification_item.dart';
 import '../models/nudge_history.dart';
 
 class NudgeTriggerService {
-  static void completeNudge(Nudge nudge, {bool addNotification = false}) {
+  static void triggerNudge(Nudge nudge) {
+    final now = DateTime.now();
+
+    AppData.notifications.add(
+      NotificationItem(
+        id: '${now.millisecondsSinceEpoch}_notification',
+        nudgeId: nudge.id,
+        title: nudge.title,
+        message: 'Your nudge was triggered',
+        place: _getPlaceName(nudge.placeId),
+        createdAt: now,
+        isRead: false,
+      ),
+    );
+  }
+
+  static void completeNudge(Nudge nudge) {
     final now = DateTime.now();
 
     AppData.history.add(
@@ -15,20 +31,6 @@ class NudgeTriggerService {
         triggeredAt: now,
       ),
     );
-
-    if (addNotification) {
-      AppData.notifications.add(
-        NotificationItem(
-          id: '${now.millisecondsSinceEpoch}_notification',
-          nudgeId: nudge.id,
-          title: nudge.title,
-          message: 'Your nudge was triggered',
-          place: _getPlaceName(nudge.placeId),
-          createdAt: now,
-          isRead: false,
-        ),
-      );
-    }
 
     final index = AppData.nudges.indexWhere((item) => item.id == nudge.id);
 
