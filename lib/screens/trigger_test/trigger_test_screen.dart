@@ -75,10 +75,7 @@ class _TriggerTestScreenState extends State<TriggerTestScreen> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  NudgeTriggerService.completeNudge(
-                    nudge,
-                    addNotification: true,
-                  );
+                  NudgeTriggerService.triggerNudge(nudge);
 
                   Navigator.pop(context, true);
                 },
